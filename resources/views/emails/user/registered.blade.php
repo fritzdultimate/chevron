@@ -79,7 +79,7 @@
                                                         
                                                         <br>
 
-                                                        <a href="https://{{ env('APP_NAME') }}.net/user/account/verification?token={{  $details['token'] }}&email={{ $details['email'] }}"
+                                                        <a href="https://{{ env('APP_NAME') }}.org/user/account/verification?token={{  $details['token'] }}&email={{ $details['email'] }}"
                                                             style="color:#ffffff;text-decoration:none" target="_blank">
                                                             <div align="center"
                                                                 style="width:400px;background-color:#d50002;border-radius:5px;text-align:center;padding:10px 20px;color:#ffffff;font-size:16px;font-weight:bold;margin:auto">

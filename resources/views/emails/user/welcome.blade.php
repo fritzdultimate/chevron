@@ -21,7 +21,7 @@
          <tbody><tr>
             <td width="100%" height="80" bgcolor="#000000" style="padding-left:20px;text-align:left" align="center">
                 <a href="{{ url('') }}" target="_blank" style="display:block; padding:10px;" align="center">
-                    <img src="{{ env("EMAIL_LOGO") }}" alt="ChevronRefinery.com" border="0" style="width:100px" class="CToWUd">
+                    <img src="{{ env("EMAIL_LOGO") }}" alt="{{ env('APP_NAME') }}.com" border="0" style="width:100px" class="CToWUd">
                 </a>
             </td>
          <td width="40%"><div style="min-width:50px"></div></td>

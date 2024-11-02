@@ -39,7 +39,7 @@ return [
             'host' => "smtp.hostinger.com",
             'port' => 587,
             'encryption' => 'tls',
-            'username' => 'support@focaltrustglobe.org',
+            'username' => 'support@chevronmobilepro.org',
             'password' => '@Focalpoint456',
             'timeout' => null,
             'auth_mode' => null,
@@ -84,8 +84,8 @@ return [
     */
 
     'from' => [
-        'address' => 'support@focaltrustglobe.org',
-        'name' => 'Focaltrustglobe',
+        'address' => 'support@chevronmobilepro.org',
+        'name' => 'Chevronmobilepro',
     ],
 
     /*

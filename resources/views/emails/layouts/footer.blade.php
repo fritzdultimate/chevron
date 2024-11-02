@@ -22,7 +22,7 @@
 
                         <div style="max-width: 400px; margin-left: auto; margin-right: auto; margin-top: 20px;">
                             <p style="font-size: 10px !important; text-align: center; line-height: 20px; font-family: 'Inter', sans-serif; color: #929292;">
-                                Questions? <a href="mailto:support@chevronrefinery.net" style="color: inherit;" target="_blank">support@chevronrefinery.net</a> or WhatsApp
+                                Questions? <a href="mailto:support@chevronmobilepro.org" style="color: inherit;" target="_blank">support@chevronmobilepro.org</a> or WhatsApp
                                 <a
                                     href=""
                                     style="color: inherit;"
