@@ -51,7 +51,7 @@
                     </b>
                     </li>
             </ul>
-            <a href="@guest {{ route('register') }} @else  {{ route('user.select-plan') }} @endguest" class="plan-submit hvr-bounce-to-right">
+            <a href="@guest {{ route('register') }} @else  {{ route('user.select-plan') }} @endguest" class="plan-submit hvr-bounce-to-right" style="background: #0066B2 !important">
                 Invest
             </a>
         </div>
