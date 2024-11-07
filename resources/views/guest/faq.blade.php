@@ -1,4 +1,4 @@
-@extends('visitor.layouts.app', ['title' => 'ChevronRefinery | FAQS'])
+@extends('visitor.layouts.app', ['title' => 'ChevronMobilePro | FAQS'])
 
 @section('content')
 
@@ -109,7 +109,7 @@
                                                             <br />
                                                             <div class="question">How can I contact you?</div>
                                                             <div class="answer">
-                                                                <p>You can contact us via:Contact form Our e-mail: <a href="/contact-us">support@chevronrefinery.net</a> or use our support form.</p>
+                                                                <p>You can contact us via:Contact form Our e-mail: <a href="/contact-us">support@chevronmobilepro.org</a> or use our support form.</p>
                                                             </div>
 
                                                             <br />
@@ -127,16 +127,16 @@
                                                         <hr />
 
                                                         <section id="faq-list">
-                                                            <div class="question">How can l invest with chevronrefinery.net?</div>
+                                                            <div class="question">How can l invest with support@chevronmobilepro.org?</div>
                                                             <div class="answer">
                                                                 <p>
-                                                                    To make a investment you must first become a member of chevronrefinery.net. Once you are signed up, you can make your first deposit. All deposits must be made through
+                                                                    To make a investment you must first become a member of support@chevronmobilepro.org. Once you are signed up, you can make your first deposit. All deposits must be made through
                                                                     the Members Area. You can login using the username and password you receive when signup.
                                                                 </p>
                                                             </div>
 
                                                             <br />
-                                                            <div class="question">l wish to invest with chevronrefinery.net but l don't have any e-currency account. what should l do?</div>
+                                                            <div class="question">l wish to invest with support@chevronmobilepro.org but l don't have any e-currency account. what should l do?</div>
                                                             <div class="answer">
                                                                 <p>
                                                                     We accept Bitcoin, Litecoin, Ethereum, USDT, E.T.C. You can open a free Bitcoin account here: https://blockchain.info or https://coinbase.com You can open a free Litecoin
