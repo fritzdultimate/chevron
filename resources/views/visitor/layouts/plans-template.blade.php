@@ -8,7 +8,7 @@
         <div class="plan-min"><img src="images/tik.png"> Min : ${{ round($plan['minimum_amount']) }}</div>
         <div class="plan-max"><img src="images/tik.png"> Max : ${{ round($plan['maximum_amount']) }}</div> 
         <div class="plan-but">
-            <a href="{{ route('register') }}">INVEST</a>
+            <a href="{{ route('register') }}" style="background: #0066B2 !important">INVEST</a>
         </div>                	
     </div>
     @endforeach
