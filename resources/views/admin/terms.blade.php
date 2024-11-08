@@ -1,51 +1,83 @@
 @include('admin.layouts.header')
-        <div id="main-wrapper">
-            @include('admin.layouts.navigation')
-            @include('admin.layouts.sidebar')
-            <div class="page-wrapper">
-                <div class="row page-titles">
-                    <div class="col-md-5 align-self-center">
-                        <h3 class="text-dark">Terms & Conditions</h3>
+    <div class="page_title_section dashboard_title">
+
+        <div class="page_header">
+            <div class="container">
+                <div class="row small">
+
+                    <div class="col-xl-9 col-lg-7 col-md-7 col-12 col-sm-7 d-flex align-items-end">
+                        <h5 class="text-white static">Terms</h5>
                     </div>
-                    <div class="col-md-7 align-self-center">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">Admin</a></li>
-                            <li class="breadcrumb-item active">Terms & Conditions</li>
-                        </ol>
+                    <div class="col-xl-3 col-lg-5 col-md-5 col-12 col-sm-5">
+                        <div class="sub_title_section">
+                            <ul class="sub_title">
+                                <li> <a href="#"> Admin </a>&nbsp; / &nbsp; </li>
+                                <li>Terms</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- inner header wrapper end -->
+	@include('admin.layouts.sidebar')
+        <!-- Main section Start -->
+        <div class="l-main pt-lg-5 mt-lg-5 mb-lg-5">         
+            <div class="d-none d-lg-block">
+                <br><br><br>
+            </div>
+            <div class="plan_investment_wrapper float_left my-lg-2">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-12">
+                        <div class="sv_heading_wraper">
 
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12">
-                            @include('admin.layouts.errors')
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Company's Terms & Condition</h4>
-                                    <form method="post" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-group">
-                                            <textarea class="textarea_editor form-control" name="terms_and_conditions" rows="15" placeholder="Enter text ..." style="height:300px">{{ $terms_and_conditions }}</textarea>
-                                        </div>
-                                        <div class="text-left">
-                                            <button type="submit" class="btn btn-primary btn-block waves-effect waves-light m-r-10">Submit</button>
+                            <h4 class="text-light">Terms & Condition</h4>
+
+                        </div>
+
+                    </div>
+                    <div class="col-12">
+                        
+                        <div class="row">
+                            <div class="col-12  p-5 mb-5">
+                                <div align="center">
+                                    <form class='page-form settings-form' action="terms">
+                                        <textarea class="editable w-100" name="terms_and_conditions">{{ $terms_and_conditions }}</textarea>
+                                        <div>
+                                            <button class="btn btn-warning w-100 input-rounded" type="submit">
+                                                <span class="form-loading d-none px-5">
+                                                    <i class="fa fa-sync fa-spin"></i>
+                                                </span>
+                                                <span class='submit-text'>
+                                                    submit
+                                                </span>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
-                @include('admin.layouts.footer')
+
             </div>
-        </div>
-        @include('admin.layouts.general-scripts')
-        <script src="{{  asset('assets/js/custom.min.js') }}"></script>
-        <script src="{{  asset('assets/js/fn.js') }}"></script>
-        <script src="{{  asset('assets/js/main.js') }}"></script>
-        <script src="{{  asset('assets/js/admin.pending-deposits.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/html5-editor/wysihtml5-0.3.0.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/html5-editor/bootstrap-wysihtml5.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/html5-editor/wysihtml5-init.js') }}"></script>
-    </body>
+            
+            @include('admin.layouts.footer')
+         </div>
+       <!--  footer  wrapper end -->      
+    <!-- main box wrapper End-->
+    @include('admin.layouts.general-scripts')
+    <script src="{{ asset('dash/jquery-te/jquery-te.min.js') }}"></script>
+    <script src="{{ asset('dash/plugins/lobibox/js/lobibox.js') }}"></script>
+    <script src="{{ asset('dash/plugins/blockUi/jquery.blockUi.js') }}"></script>
+    <script src="{{ asset('dash/js/fn.js') }}"></script>
+    <script src="{{ asset('dash/js/admin.settings.js') }}"></script>
+    <script>
+        $("textarea").jqte();
+    </script>
+    <!--main js file end-->
+</body>
+
 </html>
