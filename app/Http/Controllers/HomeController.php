@@ -298,7 +298,7 @@ class HomeController extends Controller {
         $settings = SiteSettings::latest()->first();
         $faqs = Faq::orderBy('priority', 'ASC')->get();
         $main_wallets = MainWallet::all();
-        return view('visitor.faq', compact('faqs', 'title', 'settings', 'main_wallets'));
+        return view('guest.faq', compact('faqs', 'title', 'settings', 'main_wallets'));
     }
     
     public function contact(Request $request){
