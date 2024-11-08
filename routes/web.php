@@ -105,7 +105,7 @@ Route::get('/testimonial', function () {
     return view('visitor.testimonial', compact('title'));
 });
 
-Route::get('/login', [App\Http\Controllers\HomeController::class, 'login']);
+Route::get('/login', [App\Http\Controllers\HomeController::class, 'login'])->name('login');
 Route::get('/signup', [App\Http\Controllers\HomeController::class, 'register']);
 Route::get('/register', [App\Http\Controllers\HomeController::class, 'register'])->name('register');
 Route::post('/register', [App\Http\Controllers\RegistrationController::class, 'index']);
