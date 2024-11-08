@@ -28,7 +28,7 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}" />
 </head>
 <body class="{{ $mode }}">
-    @include('preloader.index')
+    {{-- @include('preloader.index') --}}
     <a href="javascript:" id="return-to-top"> <i class="fas fa-angle-double-up"></i></a>
 	 <div class="cp_navi_main_wrapper inner_header_wrapper dashboard_header_middle float_left">
         <div class="container-fluid">

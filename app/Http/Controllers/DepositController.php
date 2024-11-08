@@ -289,7 +289,7 @@ class DepositController extends Controller {
                     'invested' => 1
                 ]);
             }
-            $referrer = $is_valid_deposit->user->referrer;
+            $referrer = $is_valid_deposit->user->referrer; 
             if($referrer) {
                 $referrer_data = User::where('name', $referrer)->first();
                 $interest_receiver_id = $referrer_data->id;

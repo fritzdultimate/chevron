@@ -83,7 +83,7 @@ function handleAction(action){
         return res.json();
     })
     .then((data) => {
-        // console.log(data);
+        console.log(data);
         if('errors' in data){
             let errorMsg = getResponse(data);
             LobiNotify('error', errorMsg);
@@ -96,7 +96,7 @@ function handleAction(action){
             LobiNotify("error", catchErrorMsg);
         }
      }).catch((err) => {
-        //  console.log(err);
+         console.log(err);
         LobiNotify("error", catchErrorMsg);
      });
 }
