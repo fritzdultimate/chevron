@@ -35,7 +35,7 @@ Route::get('/privacy', function () {
 
 Route::get('/terms', function () {
     $page_title = env("SITE_NAME") . " - Terms & Conditions";
-    return view('guest.new_terms', compact('page_title'));
+    return view('guest.terms', compact('page_title'));
 });
 
 Route::get('/product-and-services', function () {
