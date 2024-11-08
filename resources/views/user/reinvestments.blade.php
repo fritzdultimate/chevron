@@ -1,84 +1,104 @@
 @include('user.layouts.header')
-        <div id="main-wrapper">
-            @include('user.layouts.navigation')
-            @include('user.layouts.sidebar')
-            <div class="page-wrapper">
-                <div class="row page-titles">
-                    <div class="col-md-5 align-self-center">
-                        <h3 class="text-dark">Reinvestments</h3>
-                    </div>
-                    <div class="col-md-7 align-self-center">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">User</a></li>
-                            <li class="breadcrumb-item active">Reinvestments</li>
-                        </ol>
-                    </div>
-                </div>
+    <div class="page_title_section dashboard_title">
 
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                    <div class="table-responsive m-t-10">
-                                        <table id="record-table" class="display record-table record-export nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>transaction Hash</th>
-                                                    <th>amount ($)</th>
-                                                    <th>status</th>
-                                                    <th>type</th>
-                                                    <th>currency</th>
-                                                    <th>date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($reinvestments as $reinvestment)
-                                                <tr>
-                                                    <td>
-                                                        {{ $reinvestment['transaction_hash'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $reinvestment['amount'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $reinvestment['status'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $reinvestment['type'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $reinvestment['currency'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $reinvestment['date'] }}
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="page_header">
+            <div class="container">
+                <div class="row small">
+
+                    <div class="col-xl-9 col-lg-7 col-md-7 col-12 col-sm-7 d-flex align-items-end">
+                        <h5 class="text-white static">My Account </h5>
+                    </div>
+                    <div class="col-xl-3 col-lg-5 col-md-5 col-12 col-sm-5">
+                        <div class="sub_title_section">
+                            <ul class="sub_title">
+                                <li> <a href="#"> Home </a>&nbsp; / &nbsp; </li>
+                                <li>My Account</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                @include('user.layouts.footer')
             </div>
         </div>
-        @include('user.layouts.general-scripts')
-        <script src="www.amcharts.com/lib/3/amcharts.js"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js') }}"></script>
-        <script src="{{  asset('assets/js/custom.min.js') }}"></script>
-        <script src="{{  asset('assets/js/fn.js') }}"></script>
-        <script src="{{  asset('assets/js/main.js') }}"></script>
-        <script src="{{  asset('assets/js/admin.faqs.js') }}"></script>
-    </body>
+    </div>
+    <!-- inner header wrapper end -->
+	@include('user.layouts.sidebar')
+        <!-- Main section Start -->
+         <div class="l-main pt-lg-5 mt-lg-5">         
+            <div class="d-none d-lg-block">
+                <br><br>
+            </div>
+            <br>
+            <div class="last_transaction_wrapper float_left">
+
+                <div class="row">
+
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-12">
+                        <div class="sv_heading_wraper">
+
+                            <h3>Reinvestment History</h3>
+
+                        </div>
+                    </div>
+                    <div class="crm_customer_table_main_wrapper float_left">
+                        <div class="crm_ct_search_wrapper">
+                            <div class="crm_ct_search_bottom_cont_Wrapper">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="myTable table datatables cs-table crm_customer_table_inner_Wrapper">
+                                <thead>
+                                    <tr>
+                                        <th class="width_table1">transaction Hash</th>
+                                        <th class="width_table1">amount ($)</th>
+                                        <th class="width_table1">status</th>
+                                        <th class="width_table1">type</th>
+                                        <th class="width_table1">currency</th>
+                                        <th class="width_table1">date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($reinvestments as $reinvestment)
+                                    <tr class="background_white">
+                                        <td>
+                                            <div class="media cs-media">
+
+                                                <div class="media-body">
+                                                    <h5>{{ $reinvestment['deposit_hash'] }}</h5>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $reinvestment['amount'] }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $reinvestment['status'] }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $reinvestment['type'] }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $reinvestment['currency'] }}</div>
+                                        </td>
+                                        <td class="flag">
+                                            <div class="pretty p-svg p-curve">{{ $reinvestment['date'] }}</div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  transactions wrapper end -->
+            <!--  footer  wrapper start -->
+            @include('user.layouts.footer')
+         </div>
+       <!--  footer  wrapper end -->      
+    <!-- main box wrapper End-->
+    @include('user.layouts.general-scripts')
+    <!--main js file end-->
+</body>
+
 </html>

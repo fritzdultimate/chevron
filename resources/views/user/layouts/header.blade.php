@@ -1,37 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<head>
+    <meta charset="utf-8" />
+    <title>{{ $page_title }}</title>
+    <meta content="width=device-width, initial-scale=0.8, maximum-scale=0.8" name="viewport" />
+    <meta name="description" content="SiteName" />
+    <meta name="keywords" content="SiteName" />
+    <meta name="author" content="" />
+    <!--<meta name="MobileOptimized" content="320" />-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/animate.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/fonts.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/plugins/lobibox/css/lobibox.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/flaticon2.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/font-awesome.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/owl.carousel.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/owl.theme.default.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('dash/css/nice-select.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/datatables.css') }}" />
+	<link rel="stylesheet" type="text/css" href="{{ asset('dash/css/dropify.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/reset.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/magnific-popup.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{{ $mode == 'ddark' ? asset('dash/css/style.css?b=8') : asset('dash/css/light-theme.css') }}" id="app-theme"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/responsive.css?a=7') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('dash/css/custom.css?a=4') }}" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('dash/images/favicon.png') }}" />
+</head>
+<body class="{{ $mode }}">
+    @include('preloader.index')
+    <a href="javascript:void(0)" id="return-to-top"> <i class="fas fa-angle-double-up"></i></a>
+    
+	 <div class="cp_navi_main_wrapper inner_header_wrapper dashboard_header_middle float_left pt-0">
+	    <div class="container-fluid py-2" style="border-bottom: 1px solid #ffffff1f;min-height:50px">
+                <center>
+                   <div id="google_translate_element"></div>
 
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+                    <script type="text/javascript">
+                    function googleTranslateElementInit() {
+                      new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+                    }
+                    </script>
+                    
+                    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+                    </center>
         
-        <title>{{ $page_title }}</title>
-        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">-->
-        <link href=" {{ asset('assets/css/lib/amchart/export.css') }}" rel="stylesheet" />
-        <link href=" {{ asset('assets/css/lib/owl.carousel.min.css') }}" rel="stylesheet" />
-        <link href=" {{ asset('assets/css/lib/owl.theme.default.min.css') }}" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/fonts/themify.eot">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/fonts/themify.svg">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/fonts/themify.ttf">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/fonts/themify.woff">
-        <link href=" {{ asset('assets/css/style.css?z=4') }}" rel="stylesheet" />
-        <link href=" {{ asset('assets/css/custom.css?z=9') }}" rel="stylesheet" />
-        <link href=" {{ asset('assets/css/lib/sweetalert/sweetalert.css') }}" rel="stylesheet" />
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    </head>
-    <style>
-            #yt-widget[data-theme="dark"] .yt-servicelink, #yt-widget[data-theme="dark"] .yt-servicelink:first-letter{
-                display : none !important;
-            }
-        </style>
-    <body class="fix-sidebar header-fix sidebar-mini">
+	     </div>
+        <div class="container-fluid" style="display: flex;justify-content: space-between;align-items: center;">
+              <div class="cp_logo_wrapper">
+                <a href="/user">
+                    
+                     <img class="logo-dark" src="{{ asset('assets/images/email_logo.png') }}" srcset="{{ asset('assets/images/email_logo.png') }} 2x" alt="logo" style="width:250px">
+                    <!--<h4 class="text-white" style="font-weight: 600">{{ env('SITE_NAME') }}</h4>-->
+                </a>
+            </div>
+            <header class="mobail_menu d-flex ">
+                <div class="container-fluid d-flex justify-content-end align-items-center">
+                    <div class="row">				
+                       <div class="col-lg-12 col-md-12 col-sm-12 col-12 d-flex justify-content-end">
+                           <div class="crm_profile_dropbox_wrapper mr-1 d-none">
+                            <div class="nice-select" tabindex="0">
+                                <span class="current"><img src="/images/avatar.png" alt="img"> 
+                                    <span class="d-none d-md-inline-flex"> hi, {{ $user['name'] }} </span><span class="hidden_xs_content"></span></span>
+                                <ul class="list">
+    
+                                    <li><a href="#"><i class="flaticon-profile"></i> Profile</a>
+                                    </li>
+                                    <li><a href="#"><i class="flaticon-purse"></i> My Balance</a>
+                                    </li>
+                                   
+                                    <li><a href="#"><i class="flaticon-settings"></i> Setting</a>
+                                    </li>
+                                    
+                                    <li><a href="#"><i class="flaticon-turn-off"></i> Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!--<div class="d-inline-flex justify-content-center align-items-center px-3 mx-2 theme-toggler">-->
+                        <!--    <i class="nav-icon far fa-lightbulb text-light"></i>-->
+                        <!--</div>-->
+                        <div data-toggle-fullscreen class="d-inline-flex justify-content-center align-items-center px-3 mx-2 fullscreen-btn" style="color: grey">
+                            <i class="nav-icon fas fa-expand text-ligh" data-opp="fas fa-compress" style="font-size:larger" style=""></i>
+                        </div>
+                            <div class="cd-dropdown-wrapper d-flex align-items-center d-lg-none d-xl-none p-0 " style="color: grey">
+                                <a class="house_toggle inner_toggle" href="#0">
+                                    <i class="fa fa-bars" style="font-size:larger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>

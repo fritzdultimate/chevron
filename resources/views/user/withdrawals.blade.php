@@ -1,284 +1,104 @@
 @include('user.layouts.header')
-        <div id="main-wrapper">
-            @include('user.layouts.navigation')
-            @include('user.layouts.sidebar')
-            <div class="page-wrapper">
-                <div class="row page-titles">
-                    <div class="col-md-5 align-self-center">
-                        <h3 class="text-dark">Withdrawals</h3>
-                    </div>
-                    <div class="col-md-7 align-self-center">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">User</a></li>
-                            <li class="breadcrumb-item active">Withdrawals</li>
-                        </ol>
-                    </div>
-                </div>
+    <div class="page_title_section dashboard_title">
 
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12">
-                            <div>
-                                <ul class="nav nav-pills m-t-30 m-b-30">
-                                    <li class=" nav-item"> <a href="#pending" class="nav-link text-dark active" data-toggle="tab" aria-expanded="false">Pending</a> </li>
-                                    <li class="nav-item"> <a href="#approved" class="nav-link text-dark" data-toggle="tab" aria-expanded="false">Approved</a> </li>
-                                    <li class="nav-item"> <a href="#denied" class="nav-link text-dark" data-toggle="tab" aria-expanded="true">Denied</a> </li>
-                                </ul>
-                            </div>
-                            <div class="card">
-                                <div class="card-body">                                    
-                                    <div class="tab-content br-n pn">
-                                        <div id="pending" class="tab-pane active">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                                            <div class="table-responsive m-t-10">
-                                                                <table id="record-table" class="display record-table record-export nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>transaction Hash</th>
-                                                                            <th>amount ($)</th>
-                                                                            <th>status</th>
-                                                                            <th>Requested from</th>
-                                                                            <th>currency</th>
-                                                                            <th>user wallet address</th>
-                                                                            <th>user wallet Memo</th>
-                                                                            <th>date</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach ($pending_withdrawals as $pending_withdrawal)
-                                                                        <tr>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal['transaction_hash'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal['amount'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                <?php 
-                                                                                    $status = $pending_withdrawal['status'] == 'accepted' ? 'success' : ( $pending_withdrawal['status'] == 'pending' ? 'primary' : 'danger');
-                                                                                ?>
-                                                                                <span class="badge badge-pill py-1 px-2 badge-{{ $status }}"> {{ $pending_withdrawal['status'] }} </span>
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ join(' ', explode('_', $pending_withdrawal->type)) }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal->user_wallet->admin_wallet->currency }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal->user_wallet->currency_address }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal->user_wallet->memo_token }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $pending_withdrawal['created_at'] }}
-                                                                            </td>
-                                                                        </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="approved" class="tab-pane">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                                            <div class="table-responsive m-t-10">
-                                                                <table id="record-table" class="display record-table record-export nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>transaction Hash</th>
-                                                                            <th>amount ($)</th>
-                                                                            <th>status</th>
-                                                                            <th>Requested from</th>
-                                                                            <th>currency</th>
-                                                                            <th>user wallet address</th>
-                                                                            <th>user wallet Memo</th>
-                                                                            <th>date</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach ($approved_withdrawals as $approved_withdrawal)
-                                                                        <tr>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal['transaction_hash'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal['amount'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                <?php 
-                                                                                    $status = $approved_withdrawal['status'] == 'accepted' ? 'success' : ( $approved_withdrawal['status'] == 'pending' ? 'primary' : 'danger');
-                                                                                ?>
-                                                                                <span class="badge badge-pill py-1 px-2 badge-{{ $status }}"> {{ $approved_withdrawal['status'] }} </span>
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ join(' ', explode('_', $approved_withdrawal->type)) }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal->user_wallet->admin_wallet->currency }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal->user_wallet->currency_address }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal->user_wallet->memo_token }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $approved_withdrawal['created_at'] }}
-                                                                            </td>
-                                                                        </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="denied" class="tab-pane">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                                            <div class="table-responsive m-t-10">
-                                                                <table id="record-table" class="display record-table record-export nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>transaction Hash</th>
-                                                                            <th>amount ($)</th>
-                                                                            <th>status</th>
-                                                                            <th>Requested from</th>
-                                                                            <th>currency</th>
-                                                                            <th>user wallet address</th>
-                                                                            <th>user wallet Memo</th>
-                                                                            <th>date</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach ($denied_withdrawals as $denied_withdrawal)
-                                                                        <tr>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal['transaction_hash'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal['amount'] }}
-                                                                            </td>
-                                                                            <td>
-                                                                                <?php 
-                                                                                    $status = $denied_withdrawal['status'] == 'accepted' ? 'success' : ( $denied_withdrawal['status'] == 'pending' ? 'primary' : 'danger');
-                                                                                ?>
-                                                                                <span class="badge badge-pill py-1 px-2 badge-{{ $status }}"> {{ $denied_withdrawal['status'] }} </span>
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ join(' ', explode('_', $denied_withdrawal->type)) }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal->user_wallet->admin_wallet->currency }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal->user_wallet->currency_address }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal->user_wallet->memo_token }}
-                                                                            </td>
-                                                                            <td>
-                                                                                {{ $denied_withdrawal['created_at'] }}
-                                                                            </td>
-                                                                        </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="page_header">
+            <div class="container">
+                <div class="row small">
+
+                    <div class="col-xl-9 col-lg-7 col-md-7 col-12 col-sm-7 d-flex align-items-end">
+                        <h5 class="text-white static">My Account </h5>
+                    </div>
+                    <div class="col-xl-3 col-lg-5 col-md-5 col-12 col-sm-5">
+                        <div class="sub_title_section">
+                            <ul class="sub_title">
+                                <li> <a href="#"> Home </a>&nbsp; / &nbsp; </li>
+                                <li>My Account</li>
+                            </ul>
                         </div>
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
-                                    <div class="table-responsive m-t-10">
-                                        <table id="record-table" class="display record-table record-export nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>transaction Hash</th>
-                                                    <th>amount ($)</th>
-                                                    <th>status</th>
-                                                    <th>Requested from</th>
-                                                    <th>currency</th>
-                                                    <th>date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($approved_withdrawals as $approved_withdrawal)
-                                                <tr>
-                                                    <td>
-                                                        {{ $pending_withdrawal['transaction_hash'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $pending_withdrawal['amount'] }}
-                                                    </td>
-                                                    <td>
-                                                        <?php 
-                                                            $status = $withdrawal['status'] == 'accepted' ? 'success' : ( $withdrawal['status'] == 'pending' ? 'primary' : 'danger');
-                                                        ?>
-                                                        <span class="badge badge-pill py-1 px-2 badge-{{ $status }}"> {{ $withdrawal['status'] }} </span>
-                                                    </td>
-                                                    <td>
-                                                        {{ join(' ', explode('_', $withdrawal->type)) }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $withdrawal['currency'] }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $withdrawal['date'] }}
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 </div>
-                @include('user.layouts.footer')
             </div>
         </div>
-        @include('user.layouts.general-scripts')
-        <script src="www.amcharts.com/lib/3/amcharts.js"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js') }}"></script>
-        <script src="{{  asset('assets/js/lib/datatables/cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js') }}"></script>
-        <script src="{{  asset('assets/js/custom.min.js') }}"></script>
-        <script src="{{  asset('assets/js/fn.js') }}"></script>
-        <script src="{{  asset('assets/js/main.js') }}"></script>
-        <script src="{{  asset('assets/js/admin.faqs.js') }}"></script>
-    </body>
+    </div>
+    <!-- inner header wrapper end -->
+	@include('user.layouts.sidebar')
+        <!-- Main section Start -->
+         <div class="l-main pt-lg-5 mt-lg-5">         
+            <div class="d-none d-lg-block">
+                <br><br>
+            </div>
+            <br>
+            <div class="last_transaction_wrapper float_left">
+
+                <div class="row">
+
+                    <div class="col-md-12 col-lg-12 col-sm-12 col-12">
+                        <div class="sv_heading_wraper">
+
+                            <h3>Withdrawal History</h3>
+
+                        </div>
+                    </div>
+                    <div class="crm_customer_table_main_wrapper float_left">
+                        <div class="crm_ct_search_wrapper">
+                            <div class="crm_ct_search_bottom_cont_Wrapper">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="myTable table datatables cs-table crm_customer_table_inner_Wrapper">
+                                <thead>
+                                    <tr>
+                                        <th class="width_table1">transaction Hash</th>
+                                        <th class="width_table1">amount ($)</th>
+                                        <th class="width_table1">status</th>
+                                        <th class="width_table1">type</th>
+                                        <th class="width_table1">currency</th>
+                                        <th class="width_table1">date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($withdrawals as $withdrawal)
+                                    <tr class="background_white">
+                                        <td>
+                                            <div class="media cs-media">
+
+                                                <div class="media-body">
+                                                    <h5>{{ $withdrawal['transaction_hash'] }}</h5>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $withdrawal['amount'] }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $withdrawal['status'] }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ 'Withdrawal' }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="pretty p-svg p-curve">{{ $withdrawal->user_wallet->admin_wallet->currency }}</div>
+                                        </td>
+                                        <td class="flag">
+                                            <div class="pretty p-svg p-curve">{{ $withdrawal['created_at'] }}</div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  transactions wrapper end -->
+            <!--  footer  wrapper start -->
+            @include('user.layouts.footer')
+         </div>
+       <!--  footer  wrapper end -->      
+    <!-- main box wrapper End-->
+    @include('user.layouts.general-scripts')
+    <!--main js file end-->
+</body>
+
 </html>

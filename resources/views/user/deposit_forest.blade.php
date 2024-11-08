@@ -37,7 +37,6 @@
                         </div>
 
                     </div>
-                    @foreach ($plans as $plan)
                     <div class="col-xl-3 col-md-6 col-lg-6 col-sm-6 col-12">
                         <div class="investment_box_wrapper sv_pricing_border float_left height_box">
                             <div class="investment_icon_circle parpal_color">
@@ -45,26 +44,75 @@
                             </div>
                             <div class="investment_border_wrapper"></div>
                             <div class="investment_content_wrapper">
-                                <h1><a href="#">{{ $plan['name'] }} plan</a></h1>
-                                <p>Min Amount: ${{ $plan['minimum_amount'] }}
-                                    <br>Max Amount : ${{ $plan['maximum_amount'] }}
+                                <h1><a href="#">Stock/Forest</a></h1>
+                                <p>Min Amount: $10
+                                    <br>Max Amount : $10,000,000
 
-                                    <br> Up to {{ $plan['interest_rate'] }} % daily for {{ $plan['duration'] }} days
                                     <br> Principal Return
                                     <br> Compound Available</p>
                             </div>
                             <div class="about_btn plans_btn bg_btn_color">
                                 <ul>
                                     <li>
-                                        <a data-return="{{ $plan['interest_rate'] }}" 
-                                        data-child_plan_id="{{ $plan['id'] }}" data-plan="{{ $plan['id'] }}" 
-                                        data-min="{{ $plan['minimum_amount'] }}" data-max="{{ $plan['maximum_amount'] }}" class="deposit-btn" href="#">Deposit</a>
+                                        <a data-return="10" 
+                                        data-child_plan_id="32" data-plan="32" 
+                                        data-min="10" data-max="10000000" class="deposit-btn" href="#">Deposit</a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    @endforeach
+                    
+                    <div class="col-xl-3 col-md-6 col-lg-6 col-sm-6 col-12">
+                        <div class="investment_box_wrapper sv_pricing_border float_left height_box">
+                            <div class="investment_icon_circle parpal_color">
+                                <i class="flaticon-movie-tickets"></i>
+                            </div>
+                            <div class="investment_border_wrapper"></div>
+                            <div class="investment_content_wrapper">
+                                <h1><a href="#">NFT</a></h1>
+                                <p>Min Amount: 0.3 Eth
+                                    <br>Max Amount : 3,000 Eth
+
+                                    <br> Principal Return
+                                    <br> Compound Available</p>
+                            </div>
+                            <div class="about_btn plans_btn bg_btn_color">
+                                <ul>
+                                    <li>
+                                        <a data-return="10" 
+                                        data-child_plan_id="36" data-plan="36" 
+                                        data-min="900" data-max="1000000000" class="deposit-btn" href="#">Deposit</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 col-lg-6 col-sm-6 col-12">
+                        <div class="investment_box_wrapper sv_pricing_border float_left height_box">
+                            <div class="investment_icon_circle parpal_color">
+                                <i class="flaticon-movie-tickets"></i>
+                            </div>
+                            <div class="investment_border_wrapper"></div>
+                            <div class="investment_content_wrapper">
+                                <h1><a href="#">Mining Packages</a></h1>
+                                <p>Min Amount: $500
+                                    <br>Max Amount : $1,000,000
+
+                                    <br> Principal Return
+                                    <br> Compound Available</p>
+                            </div>
+                            <div class="about_btn plans_btn bg_btn_color">
+                                <ul>
+                                    <li>
+                                        <a data-return="10" 
+                                        data-child_plan_id="39" data-plan="39" 
+                                        data-min="500" data-max="1000000" class="deposit-btn" href="#">Deposit</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -82,11 +130,18 @@
                                 <div class="payment_gateway_wrapper w-100 plan-wrapper">
                                     <select required class="select-plan w-100" name="child_plan_id" id="select-plan">
                                         <option data-display="Select Plan">Select Plan</option>
-                                        @foreach ($plans as $plan)
-                                        <option data-return="{{ $plan['interest_rate'] }}" 
-                                        data-child_plan_id="{{ $plan['id'] }}" data-plan="{{ $plan['id'] }}" 
-                                        data-min="{{ $plan['minimum_amount'] }}" data-max="{{ $plan['maximum_amount'] }}" value="{{ $plan['id'] }}">{{ $plan['name'] }}</option>
-                                        @endforeach
+                                        <option data-return="10" 
+                                        data-child_plan_id="32" data-plan="32" 
+                                        data-min="10" data-max="10000000" value="32">Stock/Forex Plan</option>
+                                        
+                                        <option data-return="10" 
+                                        data-child_plan_id="36" data-plan="36" 
+                                        data-min="900" data-max="1000000000" value="36">NFT Plan</option>
+                                        
+                                        
+                                        <option data-return="10" 
+                                        data-child_plan_id="39" data-plan="39" 
+                                        data-min="500" data-max="1000000" value="39">Mining Packages</option>
                                     </select>
                                 </div>
                             </div>
