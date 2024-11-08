@@ -52,7 +52,6 @@
                                         <th class="width_table1">amount ($)</th>
                                         <th class="width_table1">status</th>
                                         <th class="width_table1">type</th>
-                                        <th class="width_table1">currency</th>
                                         <th class="width_table1">date</th>
                                     </tr>
                                 </thead>
@@ -75,9 +74,6 @@
                                         </td>
                                         <td>
                                             <div class="pretty p-svg p-curve">{{ $deposit['reinvestment'] ? 'Reinvestment' : 'Deposit' }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="pretty p-svg p-curve">{{ $deposit->user_wallet->admin_wallet->currency }}</div>
                                         </td>
                                         <td class="flag">
                                             <div class="pretty p-svg p-curve">{{ $deposit['created_at'] }}</div>
