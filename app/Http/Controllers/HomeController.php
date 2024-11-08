@@ -269,7 +269,7 @@ class HomeController extends Controller {
         $settings = SiteSettings::latest()->first();
         $site_about_us = $settings['site_about_us'];
         $main_wallets = MainWallet::all();
-        return view('visitor.about-us', compact('site_about_us', 'page_title', 'settings', 'main_wallets'));
+        return view('guest.about-us', compact('site_about_us', 'page_title', 'settings', 'main_wallets'));
     }
     
     public function terms(Request $request){
