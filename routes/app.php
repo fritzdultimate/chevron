@@ -50,14 +50,14 @@ use Illuminate\Support\Facades\Route;
      * accepts
      * $email*
      */
-    Route::post('/register/steup/forgotpassword/email', [App\Http\Controllers\RegistrationController::class, 'sendChangePasswordToken']);
+    Route::post('/register/setup/forgotpassword/email', [App\Http\Controllers\RegistrationController::class, 'sendChangePasswordToken']);
     /**
      * to verify token
      * accepts
      * $email*
      * $token*
      */
-    Route::post('/register/steup/verifytoken', [App\Http\Controllers\RegistrationController::class, 'verifyToken']);
+    Route::post('/register/setup/verifytoken', [App\Http\Controllers\RegistrationController::class, 'verifyToken']);
     /**
      * to reset password
      * accepts
@@ -65,7 +65,7 @@ use Illuminate\Support\Facades\Route;
      * $password*
      * $repassword*
      */
-    Route::post('/register/steup/resetpass', [App\Http\Controllers\RegistrationController::class, 'resetPassword']);
+    Route::post('/register/setup/resetpass', [App\Http\Controllers\RegistrationController::class, 'resetPassword']);
 
     // Admin Registration Route starts here
         /**
@@ -101,10 +101,7 @@ use Illuminate\Support\Facades\Route;
      * $login
      * $password
      */
-    Route::post('/user/deposit/pause', [App\Http\Controllers\DepositController::class, 'pauseDeposit']);
-Route::post('/user/deposit/play', [App\Http\Controllers\DepositController::class, 'playDeposit']);
-    
-Route::post('/login', [App\Http\Controllers\LoginController::class, 'index']);
+    Route::post('/login', [App\Http\Controllers\LoginController::class, 'index']);
     /**
      * to logout a user
      */
@@ -147,7 +144,7 @@ Route::post('/admin/plan/child/{id}', [App\Http\Controllers\ChildInvestmentPlanC
 // ChildInvestmentPlan::Router ends here 
 
 // withdrawal::Router starts here
-Route::post('/withdrawal/create', [App\Http\Controllers\WithdrawalController::class, 'index']);
+Route::post('/withdrawal/create', [App\Http\Controllers\WithdrawalController::class, 'store']);
 Route::post('/admin/withdrawal/approve', [App\Http\Controllers\WithdrawalController::class, 'approve']);
 Route::post('/admin/withdrawal/deny', [App\Http\Controllers\WithdrawalController::class, 'deny']);
 Route::post('/admin/withdrawal/delete', [App\Http\Controllers\WithdrawalController::class, 'delete']);
@@ -176,7 +173,6 @@ Route::post('/admin/review/delete', [App\Http\Controllers\ReviewsController::cla
 
 
 // Settings::Router starts here
-
 Route::post('/admin/settings/about-us', [App\Http\Controllers\SiteSettingsController::class, 'storeAboutUs']);
 Route::post('/admin/settings/terms', [App\Http\Controllers\SiteSettingsController::class, 'storeTermsAndConditions']);
 Route::post('/admin/settings/privacy', [App\Http\Controllers\SiteSettingsController::class, 'storePrivacyAndPolicy']);
@@ -200,11 +196,11 @@ Route::post('/contact-support', [App\Http\Controllers\EmailController::class, 'c
 
 // AccountFundingRequest::Router starts here
 Route::post('/account/fund-account', [App\Http\Controllers\AccountFundingRequestController::class, 'fundAccount']);
-// Route::post('/account/debit-account', [App\Http\Controllers\AccountFundingRequestController::class, 'debitAccount']);
+Route::post('/account/debit-account', [App\Http\Controllers\AccountFundingRequestController::class, 'debitAccount']);
 Route::post('/account/fund-currently-invested', [App\Http\Controllers\AccountFundingRequestController::class, 'fundCurrentInvested']);
-// Route::post('/account/debit-currently-invested', [App\Http\Controllers\AccountFundingRequestController::class, 'debitCurrentInvested']);
+Route::post('/account/debit-currently-invested', [App\Http\Controllers\AccountFundingRequestController::class, 'debitCurrentInvested']);
 Route::post('/account/fund-referral-bonus', [App\Http\Controllers\AccountFundingRequestController::class, 'fundReferralBonus']);
-// Route::post('/account/debit-referral-bonus', [App\Http\Controllers\AccountFundingRequestController::class, 'debitReferralBonus']);
+Route::post('/account/debit-referral-bonus', [App\Http\Controllers\AccountFundingRequestController::class, 'debitReferralBonus']);
 Route::post('/account/quick-withdrawal', [App\Http\Controllers\AccountFundingRequestController::class, 'quickWithdrawal']);
 Route::post('/admin/account/funds/approve', [App\Http\Controllers\AccountFundingRequestController::class, 'approve']);
 Route::post('/admin/account/funds/deny', [App\Http\Controllers\AccountFundingRequestController::class, 'deny']);
@@ -229,5 +225,3 @@ Route::post('admin/user/toggleSuspend', [App\Http\Controllers\AdminController::c
 
 Route::get('admin/user/{user}', [App\Http\Controllers\UserController::class, 'getUser']);
 // User Management ends here
-
-Route::post('/register/setup/forgotpassword/email', [App\Http\Controllers\RegistrationController::class, 'sendChangePasswordToken']);
