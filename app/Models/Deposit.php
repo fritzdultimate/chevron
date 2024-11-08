@@ -53,6 +53,10 @@ class Deposit extends Model
         });
     }
 
+    public function user_wallet() {
+        return $this->belongsTo(UserWallet::class, 'user_wallet_id');
+    }
+
     public function plan() {
         return $this->belongsTo(ChildInvestmentPlan::class, 'child_investment_plan_id');
     }
