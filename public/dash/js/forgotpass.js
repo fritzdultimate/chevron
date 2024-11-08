@@ -32,7 +32,6 @@ function processPass(form){
         hideLoading();
         return res.json();
     }).then((data) => {
-        console.log(data);
         if('errors' in data){
             console.log(data);
             let errorMsg = getResponse(data);

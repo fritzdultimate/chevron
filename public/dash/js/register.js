@@ -20,14 +20,9 @@ function hasError(form){
 }
 function checkError(form, mode){
     let fd = new FormData(form);
-    
-    fd.delete('uid');
-    
     let passwordMatch = fd.get('password') == fd.get('repassword');
     let acceptedTerms = !!fd.get('terms');
-
-
-    if(hasEmptyField(fd)){
+    if(hasEmptyField(form)){
         return mode ? true : LobiNotify("error", "Inputs Cant Be Empty", 10000);
     } else if(!passwordMatch){
         return mode ? true : LobiNotify("error", "Passwords do not match", 10000);

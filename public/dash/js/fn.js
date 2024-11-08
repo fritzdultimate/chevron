@@ -171,7 +171,7 @@ function lobiAlert(type, msg){
     });
 }
 function hasEmptyField(form){
-    let formData = form instanceof FormData ? form : new FormData(form);
+    let formData = new FormData(form);
     return [... formData.values()].some((value) => !value);
 }
 

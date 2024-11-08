@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
 function initLoginFormAction(){
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        showLoading();
+        // showLoading();
         processLogin(e.currentTarget);
     });
 }
@@ -30,7 +30,8 @@ function processLogin(form){
         hideLoading();
         return res.json();
     }).then((data) => {
-        if('errors' in data){ 
+        if('errors' in data){
+            console.log(data);
             let errorMsg = getResponse(data);
             LobiNotify('error', errorMsg, 10000)
         } else if('success' in data){
