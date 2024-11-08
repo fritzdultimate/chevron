@@ -107,7 +107,7 @@ Route::get('/testimonial', function () {
 
 Route::get('/login', [App\Http\Controllers\HomeController::class, 'login']);
 Route::get('/signup', [App\Http\Controllers\HomeController::class, 'register']);
-Route::get('/register', [App\Http\Controllers\HomeController::class, 'register']);
+Route::get('/register', [App\Http\Controllers\HomeController::class, 'register'])->name('register');
 Route::post('/register', [App\Http\Controllers\RegistrationController::class, 'index']);
 
 Route::get('/user', [App\Http\Controllers\HomeController::class, 'dashboard']);
