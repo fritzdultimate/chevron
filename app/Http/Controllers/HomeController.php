@@ -134,7 +134,7 @@ class HomeController extends Controller {
     $profits = ProfitCronJob::where('user_id', $user['id'])->get();
     $profit_sum = $profits->sum('interest_received');
     $total_referrer_bonus_earned = ReferrersInterestRelationship::where('interest_receiver_id', $user['id'])->sum('amount');
-        return view('user_new.index', compact('page_title', 'profit_sum', 'total_referrer_bonus_earned', 'total_referrals', 'active_investment_count', 'active_investment_amount', 'active_investment', 'total_referral_interest_this_month', 'total_interest_this_month', 'total_deposits', 'total_withdrawals', 'total_denied_deposits', 'total_approved_deposits', 'total_pending_deposits', 'total_denied_withdrawals', 'total_pending_withdrawals', 'total_approved_withdrawals', 'recent_deposits', 'mode', 'user', 'transactions', 'plans', 'wallets', 'reviews', 'active_deposits'));
+        return view('user.index', compact('page_title', 'profit_sum', 'total_referrer_bonus_earned', 'total_referrals', 'active_investment_count', 'active_investment_amount', 'active_investment', 'total_referral_interest_this_month', 'total_interest_this_month', 'total_deposits', 'total_withdrawals', 'total_denied_deposits', 'total_approved_deposits', 'total_pending_deposits', 'total_denied_withdrawals', 'total_pending_withdrawals', 'total_approved_withdrawals', 'recent_deposits', 'mode', 'user', 'transactions', 'plans', 'wallets', 'reviews', 'active_deposits'));
     }
 
     public function selectPlan(Request $request) {
