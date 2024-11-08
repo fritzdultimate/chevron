@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
-
+use App\Models\ChildInvestmentPlan;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,157 +12,172 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::post('user/deposit/create', [App\Http\Controllers\DepositController::class, 'store']);
-Route::post('user/update/profile', [App\Http\Controllers\HomeController::class, 'updateProfile']);
-Route::post('user/update/password', [App\Http\Controllers\HomeController::class, 'updatePassword']);
+Route::get('/daily-interest-delete', [App\Http\Controllers\ProfitCronJobController::class, 'deleteCronJobs']);
 
+// Route::get('/', function () {
+//     $title = env("SITE_NAME") . " - Home";
+//     return view('visitor.index', compact('title'));
+// });
+Route::get('/namecheap/support/tree/web/maintainance/', [App\Http\Controllers\HomeController::class, 'maintainance']);
 
-Route::controller(HomeController::class)->name('guest.')->group(function() {
-    Route::get('/', 'index')->name('index');
-    Route::view('/about-us', 'guest.new_about-us')->name('about-us');
-    Route::view('/product-and-services', 'guest.product-and-services')->name('product-and-services');
-    Route::view('/limitation-of-liability', 'guest.limitation-of-liability')->name('limitation-of-liability');
-    Route::view('/contact-us', 'guest.contact-us')->name('contact-us');
-    Route::view('/help', 'guest.help')->name('help');
-    Route::view('/faq', 'guest.faq')->name('faq');
-    // Route::view('/faq', 'guest.faq')->name('faqs');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);
+Route::get('/admin/ids', [App\Http\Controllers\HomeController::class, 'ids']);
 
-    Route::view('/investments', 'guest.investments')->name('investments');
-    Route::view('/privacy', 'guest.privacy')->name('privacy');
-
-
-
-    Route::view('/vision-mission', 'guest.new_vision')->name('vision');
-
-    
-
-    // Route::view('/management-profiles', 'guest.new_management_profile')->name('management_profiles');
-    // Route::view('/social-investment', 'guest.new_social-investment')->name('social_investment');
-    // Route::view('/biodiversity', 'guest.new_biodiversity')->name('biodiversity');
-    // Route::view('/anti-bribery-policy', 'guest.new_anti_bribery_policy')->name('anti-bribery-policy');
-    // Route::view('/whistle-blowing-system', 'guest.new_whistle_blowing_system')->name('whistle-blowing-system');
-    // Route::view('/csirt', 'guest.new_csirt')->name('csirt');
-    // Route::view('/jobs', 'guest.new_jobs')->name('jobs');
-    // Route::view('/jobs/detail/internship-4', 'guest.new_jobs_detail_internship_4')->name('jobs_details');
-    // Route::view('/investor-registration', 'guest.new_vendor_registration')->name('investor_registration');
-
-
-    // Route::view('/markets-to-trade', 'guest.about-us')->name('markets-to-trade');
-    // Route::get('/faq', 'faqs')->name('faqs');
-    // Route::view('/funds-protection', 'guest.funds-protection')->name('funds-protection');
-    // Route::view('/how-to-open-an-account', 'how-to-open-an-account')->name('how-to-open-an-account');
-    // Route::view('/forex', 'guest.forex')->name('forex');
-    // Route::view('/stocks', 'guest.stocks')->name('stocks');
-    // Route::view('/indices', 'guest.indices')->name('indices');
-    // Route::view('/commodities', 'guest.commodities')->name('commodities');
-    // Route::view('/how-to-earn', 'guest.how-to-earn')->name('how-to-earn');
-    // Route::view('/cookies-agreement', 'guest.cookies-agreement')->name('cookies-agreement');
-
-
-
-    Route::get('/plans', 'plans')->name('plans');
-    Route::get('/news', 'news')->name('news');
-    Route::get('/support', 'support')->name('support');
-    // Route::get('/contact-us', 'contactUs')->name('contact-us');
-    Route::get('/privacy-policy', 'privacyPolicy')->name('privacy-policy');
-    Route::get('/meet-our-traders', 'meetOurTraders')->name('meet-our-traders');
-    Route::get('/how-it-works', 'howItWorks')->name('how-it-works');
-    Route::get('/terms', 'terms')->name('terms');
-    // Route::match(['get', 'post'], '/forgot-pass', 'forgotPass')->name('forgot-pass');
-
-    Route::view('/forgot-password', 'auth.forgot-password')->name('forgot-pass');
-
-
-    Route::match(['get', 'post'], '/change-pass', 'changePass')->name('change-pass');
-    Route::match(['get', 'post'], '/verify-token', 'verifyToken')->name('verify-token');
+Route::get('/about-us', function () {
+    $title = env("SITE_NAME") . " - About Us";
+    return view('visitor.about-us', compact('title'));
 });
 
-Route::match(['get', 'post'], '/login', [App\Http\Controllers\LoginController::class, 'index'])->name('login');
-Route::match(['get', 'post'], '/register', [App\Http\Controllers\RegistrationController::class, 'index'])->name('register');
-
-
-
-Route::prefix('user')->name('user.')->group(function(){
-    Route::get('/', [App\Http\Controllers\HomeController::class, 'dashboard'])->name('dashboard');
-    // Route::get('/profile', [App\Http\Controllers\HomeController::class, 'profile']);
-    Route::match(['get', 'post'],'/wallets', [App\Http\Controllers\UserWalletController::class, 'index']);
-    Route::get('/deposit', [App\Http\Controllers\HomeController::class, 'deposit']);
-    Route::get('/withdraw', [App\Http\Controllers\HomeController::class, 'withdraw']);
-    Route::get('/select-plan', [App\Http\Controllers\HomeController::class, 'selectPlan'])->name('select-plan');
-    Route::get('/reinvest/select-plan', [App\Http\Controllers\HomeController::class, 'selectPlan'])->name('reinvest');
-    Route::get('/plans/{name}/invest', [App\Http\Controllers\HomeController::class, 'InvestmentProcess']);
-    Route::get('/plans/{name}/reinvest', [App\Http\Controllers\HomeController::class, 'ReinvestmentProcess']);
-    Route::get('/investments/{id}', [App\Http\Controllers\HomeController::class, 'InvestmentDetails']);
-    Route::get('/withdrawals/{id}', [App\Http\Controllers\HomeController::class, 'WithdrawalDetails']);
-    Route::get('/profile', [App\Http\Controllers\HomeController::class, 'userProfile']);
-    
-    Route::get('/deposits', [App\Http\Controllers\HomeController::class, 'deposits']);
-    Route::match(['get', 'post'], '/deposits/active', [App\Http\Controllers\HomeController::class, 'activeDeposits']);
-    Route::match(['get', 'post'], '/deposits/inactive', [App\Http\Controllers\HomeController::class, 'inactiveDeposits']);
-    Route::match(['get', 'post'], '/reinvest', [App\Http\Controllers\DepositController::class, 'reinvest']);
-    Route::get('/reinvestments', [App\Http\Controllers\HomeController::class, 'reinvestments']);
-    Route::match(['get', 'post'], '/withdrawal', [App\Http\Controllers\WithdrawalController::class, 'index']);
-    Route::get('/withdrawals', [App\Http\Controllers\HomeController::class, 'withdrawals']);
-    Route::get('/transactions', [App\Http\Controllers\HomeController::class, 'transactions']);
-    Route::get('/all-transactions', [App\Http\Controllers\HomeController::class, 'allTransactions']);
-    Route::get('/security', [App\Http\Controllers\HomeController::class, 'security']);
-    
-    Route::get('/logout', [App\Http\Controllers\HomeController::class, 'logout']);
-    Route::get('/referrals', [App\Http\Controllers\HomeController::class, 'referrals']);
-    
-    Route::match(['get', 'post'], '/manage/quick-withdrawal', [App\Http\Controllers\HomeController::class, 'quickWithdrawal']);
-    Route::match(['get', 'post'], '/manage/referral-bonus', [App\Http\Controllers\HomeController::class, 'referralBonus']);
-    Route::match(['get', 'post'], '/manage/current-invested', [App\Http\Controllers\HomeController::class, 'currentInvested']);
-    Route::match(['get', 'post'], '/manage/wallet-balance', [App\Http\Controllers\HomeController::class, 'walletBalance']);
-    Route::match(['get', 'post'], '/manage/total-withdrawn', [App\Http\Controllers\HomeController::class, 'totalWithdrawn']);
-    Route::get('/account/verification', [App\Http\Controllers\RegistrationController::class, 'verifyUserAccount'])->name('verify-user-account');
+Route::get('/privacy', function () {
+    $page_title = env("SITE_NAME") . " - Privacy & Policy";
+    return view('visitor.privacy', compact('page_title'));
 });
-Route::prefix('admin')->middleware(['login', 'admin'])->group(function(){
-    Route::match(['get', 'post'], '/', [App\Http\Controllers\AdminController::class, 'index']);
-     Route::match(['get', 'post'], '/members/suspended', [App\Http\Controllers\AdminController::class, 'suspendedMembers']);
-      Route::match(['get', 'post'], '/members/moderators', [App\Http\Controllers\AdminController::class, 'moderators']);
-    Route::match(['get', 'post'], '/members/admins', [App\Http\Controllers\AdminController::class, 'admins']);
-    Route::match(['get', 'post'], '/members', [App\Http\Controllers\AdminController::class, 'members']);
-   
-   
-    
-    
-    Route::match(['get', 'post'], '/plans/parent', [App\Http\Controllers\ParentInvestmentPlanController::class, 'index']);
-    Route::match(['get', 'post'], '/plans/child', [App\Http\Controllers\ChildInvestmentPlanController::class, 'index']);
-    
-    Route::match(['get', 'post'], '/wallets', [App\Http\Controllers\MainWalletController::class, 'index']);
-    
-    Route::match(['get', 'post'], '/deposits/pending', [App\Http\Controllers\DepositController::class, 'pendingDeposits']);
-    Route::match(['get', 'post'], '/deposits/approved', [App\Http\Controllers\DepositController::class, 'approvedDeposits']);
-    Route::match(['get', 'post'], '/deposits/denied', [App\Http\Controllers\DepositController::class, 'deniedDeposits']);
-    
-    Route::match(['get', 'post'], '/withdrawals/pending', [App\Http\Controllers\WithdrawalController::class, 'pendingWithdrawals']);
-    Route::match(['get', 'post'], '/withdrawals/approved', [App\Http\Controllers\WithdrawalController::class, 'approvedWithdrawals']);
-    Route::match(['get', 'post'], '/withdrawals/denied', [App\Http\Controllers\WithdrawalController::class, 'deniedWithdrawals']);
-    
-    Route::match(['get', 'post'], '/fund/confirm-credit', [App\Http\Controllers\AdminController::class, 'confirmCredit']);
-    Route::match(['get', 'post'], '/fund/confirm-debit', [App\Http\Controllers\AdminController::class, 'confirmDebit']);
-    Route::match(['get', 'post'], '/fund/ci/confirm-credit', [App\Http\Controllers\AdminController::class, 'confirmCiCredit']);
-    Route::match(['get', 'post'], '/fund/ci/confirm-debit', [App\Http\Controllers\AdminController::class, 'confirmCiDebit']);
-    
-    Route::match(['get', 'post'], '/quick-withdrawal', [App\Http\Controllers\AdminController::class, 'quickWithdrawal']);
-    
-     Route::match(['get', 'post'], '/manage/deposit-interest', [App\Http\Controllers\AdminController::class, 'depositInterest']);
-    Route::match(['get', 'post'], '/manage/referral-bonus', [App\Http\Controllers\AdminController::class, 'referralBonus']);
-    Route::match(['get', 'post'], '/manage/current-invested', [App\Http\Controllers\AdminController::class, 'currentInvested']);
-    Route::match(['get', 'post'], '/manage/wallet-balance', [App\Http\Controllers\AdminController::class, 'walletBalance']);
-    Route::match(['get', 'post'], '/manage/total-withdrawn', [App\Http\Controllers\AdminController::class, 'totalWithdrawn']);
-    
-    Route::match(['get', 'post'], '/files', [App\Http\Controllers\AdminController::class, 'files']);
-    Route::match(['get', 'post'], '/reviews', [App\Http\Controllers\ReviewsController::class, 'index']);
-    
-    Route::match(['get', 'post'],'/pages/faqs', [App\Http\Controllers\FaqController::class, 'index']);
-    
-    Route::match(['get', 'post'], '/pages/terms', [App\Http\Controllers\SiteSettingsController::class, 'termsAndConditions']);
-    Route::match(['get', 'post'], '/pages/about', [App\Http\Controllers\SiteSettingsController::class, 'aboutUs']);
-    Route::match(['get', 'post'], '/pages/privacy-policy', [App\Http\Controllers\SiteSettingsController::class, 'privacyAndPolicy']);
-    Route::match(['get', 'post'], '/pages/meet-our-traders', [App\Http\Controllers\SiteSettingsController::class, 'meetOurTraders']);
-    
-    Route::match(['get', 'post'], '/pages/how-it-works', [App\Http\Controllers\SiteSettingsController::class, 'howItWorks']);
-    Route::get('/logout', [App\Http\Controllers\AdminController::class, 'logout']);
+
+Route::get('/terms', function () {
+    $page_title = env("SITE_NAME") . " - Terms & Conditions";
+    return view('visitor.terms', compact('page_title'));
 });
+
+Route::get('/product-and-services', function () {
+    $page_title = env("SITE_NAME") . " - Product and services";
+    return view('visitor.product-and-services', compact('page_title'));
+});
+
+Route::get('/investments', function () {
+    $plans = ChildInvestmentPlan::orderBy('minimum_amount', 'asc')->get();
+    $page_title = env("SITE_NAME") . " - Investment Plans";
+    return view('visitor.investment-plans', compact('page_title', 'plans'));
+});
+
+Route::get('/limitation-of-liability', function () {
+    $page_title = env("SITE_NAME") . " - Limitation of liability";
+    return view('visitor.limited-liability', compact('page_title'));
+});
+
+Route::get('/help', function () {
+    $title = env("SITE_NAME") . " - Help";
+    return view('visitor.help', compact('title'));
+});
+
+Route::get('/our-team', function () {
+    $title = env("SITE_NAME") . " - Our Teams";
+    return view('visitor.our-team', compact('title'));
+});
+
+Route::get('/services', function () {
+    $title = env("SITE_NAME") . " - Services";
+    return view('visitor.services', compact('title'));
+});
+
+Route::get('/finance-restructuring', function () {
+    $title = env("SITE_NAME") . " - Finance and restructuring";
+return view('visitor.finance-restructuring', compact('title'));
+});
+
+Route::get('/audit', function () {
+    $title = env("SITE_NAME") . " - Audit";
+    return view('visitor.audit', compact('title'));
+});
+
+// Route::get('/contact-us', function () {
+//     $title = env("SITE_NAME") . " - Contact Us";
+//     return view('visitor.contact-us', compact('title'));
+// });
+
+Route::get('/contact-us', [App\Http\Controllers\HomeController::class, 'contact']);
+
+// Route::get('/pricing', function () {
+//     $title = env("SITE_NAME") . " - Plans and pricing";
+//     return view('visitor.pricing', compact('title'));
+// });
+
+Route::get('/pricing', [App\Http\Controllers\HomeController::class, 'pricing']);
+
+// Route::get('/faq', function () {
+//     $title = env("SITE_NAME") . " - Frequently Asked Questions";
+//     return view('visitor.faq', compact('title'));
+// });
+
+Route::get('/faq', [App\Http\Controllers\HomeController::class, 'faqs']);
+
+Route::get('/testimonial', function () {
+    $title = env("SITE_NAME") . " - Testimonial";
+    return view('visitor.testimonial', compact('title'));
+});
+
+Route::get('/login', [App\Http\Controllers\HomeController::class, 'login']);
+Route::get('/signup', [App\Http\Controllers\HomeController::class, 'register']);
+Route::get('/register', [App\Http\Controllers\HomeController::class, 'register']);
+Route::post('/register', [App\Http\Controllers\RegistrationController::class, 'index']);
+
+Route::get('/user', [App\Http\Controllers\HomeController::class, 'dashboard']);
+Route::get('/user/profile', [App\Http\Controllers\HomeController::class, 'profile']);
+Route::get('/user/wallets', [App\Http\Controllers\HomeController::class, 'wallets']);
+Route::get('/user/deposit', [App\Http\Controllers\HomeController::class, 'deposit']);
+Route::get('/user/deposit/stock', [App\Http\Controllers\HomeController::class, 'deposit_stock']);
+Route::get('/user/deposits', [App\Http\Controllers\HomeController::class, 'deposits']);
+Route::get('/user/reinvest', [App\Http\Controllers\HomeController::class, 'reinvest']);
+Route::get('/user/reinvestments', [App\Http\Controllers\HomeController::class, 'reinvestments']);
+Route::get('/user/withdrawal', [App\Http\Controllers\HomeController::class, 'withdrawal']);
+Route::get('/user/withdrawals', [App\Http\Controllers\HomeController::class, 'withdrawals']);
+Route::get('/user/transactions', [App\Http\Controllers\HomeController::class, 'transactions']);
+Route::get('/user/security', [App\Http\Controllers\HomeController::class, 'security']);
+
+Route::get('/user/logout', [App\Http\Controllers\HomeController::class, 'logout']);
+Route::get('/user/referrals', [App\Http\Controllers\HomeController::class, 'referrals']);
+
+Route::get('/user/manage/quick-withdrawal', [App\Http\Controllers\HomeController::class, 'quickWithdrawalMod']);
+Route::get('/user/manage/referral-bonus', [App\Http\Controllers\HomeController::class, 'referralBonus']);
+Route::get('/user/manage/current-invested', [App\Http\Controllers\HomeController::class, 'currentInvested']);
+Route::get('/user/manage/wallet-balance', [App\Http\Controllers\HomeController::class, 'walletBalance']);
+
+
+
+Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index']);
+Route::get('/admin/members', [App\Http\Controllers\AdminController::class, 'members']);
+Route::get('/admin/members/suspended', [App\Http\Controllers\AdminController::class, 'suspendedMembers']);
+
+
+Route::get('/admin/plans/parent', [App\Http\Controllers\AdminController::class, 'parentPlan']);
+Route::get('/admin/plans/child', [App\Http\Controllers\AdminController::class, 'childPlan']);
+
+Route::get('/admin/wallets', [App\Http\Controllers\AdminController::class, 'wallets']);
+
+Route::get('/admin/deposits/pending', [App\Http\Controllers\AdminController::class, 'pendingDeposits']);
+Route::get('/admin/deposits/approved', [App\Http\Controllers\AdminController::class, 'approvedDeposits']);
+Route::get('/admin/deposits/denied', [App\Http\Controllers\AdminController::class, 'deniedDeposits']);
+
+Route::get('/admin/withdrawals/pending', [App\Http\Controllers\AdminController::class, 'pendingWithdrawals']);
+Route::get('/admin/withdrawals/approved', [App\Http\Controllers\AdminController::class, 'approvedWithdrawals']);
+Route::get('/admin/withdrawals/denied', [App\Http\Controllers\AdminController::class, 'deniedWithdrawals']);
+
+Route::get('/admin/fund/confirm-credit', [App\Http\Controllers\AdminController::class, 'confirmCredit']);
+Route::get('/admin/fund/confirm-debit', [App\Http\Controllers\AdminController::class, 'confirmDebit']);
+Route::get('/admin/fund/ci/confirm-credit', [App\Http\Controllers\AdminController::class, 'confirmCiCredit']);
+Route::get('/admin/fund/ci/confirm-debit', [App\Http\Controllers\AdminController::class, 'confirmCiDebit']);
+
+Route::get('/admin/quick-withdrawal', [App\Http\Controllers\AdminController::class, 'quickWithdrawal']);
+
+Route::get('/admin/manage/referral-bonus', [App\Http\Controllers\AdminController::class, 'referralBonus']);
+Route::get('/admin/manage/current-invested', [App\Http\Controllers\AdminController::class, 'currentInvested']);
+Route::get('/admin/manage/wallet-balance', [App\Http\Controllers\AdminController::class, 'walletBalance']);
+
+Route::get('/admin/files', [App\Http\Controllers\AdminController::class, 'files']);
+Route::get('/admin/reviews', [App\Http\Controllers\AdminController::class, 'reviews']);
+
+Route::get('/admin/pages/terms', [App\Http\Controllers\AdminController::class, 'terms']);
+Route::get('/admin/pages/faqs', [App\Http\Controllers\AdminController::class, 'faqs']);
+Route::get('/admin/pages/about', [App\Http\Controllers\AdminController::class, 'about']);
+Route::get('/admin/pages/privacy-policy', [App\Http\Controllers\AdminController::class, 'privacyPolicy']);
+Route::get('/admin/pages/meet-our-traders', [App\Http\Controllers\AdminController::class, 'meetOurTraders']);
+
+Route::get('/admin/pages/how-it-works', [App\Http\Controllers\AdminController::class, 'howItWorks']);
+Route::get('/admin/logout', [App\Http\Controllers\AdminController::class, 'logout']);
+
+Route::get('/user/account/verification', [App\Http\Controllers\RegistrationController::class, 'verifyUserAccount']);
+
+
+Route::get('/forgot-password', [App\Http\Controllers\HomeController::class, 'forgotPass']);
+Route::get('/change-pass', [App\Http\Controllers\HomeController::class, 'changePass']);
+Route::get('/verify-token', [App\Http\Controllers\HomeController::class, 'verifyToken']);
+
