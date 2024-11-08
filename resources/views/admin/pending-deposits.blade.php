@@ -118,7 +118,7 @@
             <script src="{{ asset('dash/plugins/lobibox/js/lobibox.js') }}"></script>
             <script src="{{ asset('dash/plugins/blockUi/jquery.blockUi.js') }}"></script>
             <script src="{{ asset('dash/js/fn.js') }}"></script>
-            <script src="{{ asset('dash/js/admin.deposits.js?a=1') }}"></script>
+            <script src="{{ asset('dash/js/admin.deposits.js?a=14') }}"></script>
 </body>
 
 </html>
