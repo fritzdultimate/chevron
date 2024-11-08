@@ -171,7 +171,7 @@ a[x-apple-data-detectors='true'] {
 
     <p style="font-size: 14px; line-height: 140%;">
         <span style="font-size: 16px; line-height: 22.4px;"> 
-           You have a new user
+           You have a new user {{ $details['username'] }}
         </span>
     </p>
   </div>

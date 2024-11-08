@@ -175,7 +175,7 @@ a[x-apple-data-detectors='true'] {
   <div style="color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word;">
     <p style="font-size: 14px; line-height: 140%;">
         <span style="font-size: 16px; line-height: 22.4px;">
-             {{ env('SITE_NAME') }} has successfully approved a user deposit request.
+             {{ env('SITE_NAME') }} has successfully approved user {{ $details['username'] }} deposit request.
         </span>
     </p>
     
