@@ -1,6 +1,5 @@
 @include('user.layouts.header')
         <div id="main-wrapper">
-            @include('user.layouts.navigation')
             @include('user.layouts.sidebar')
             <div class="page-wrapper">
                 <div class="row page-titles">
