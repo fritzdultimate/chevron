@@ -46,7 +46,7 @@ Route::get('/product-and-services', function () {
 Route::get('/investments', function () {
     $plans = ChildInvestmentPlan::orderBy('minimum_amount', 'asc')->get();
     $page_title = env("SITE_NAME") . " - Investment Plans";
-    return view('guest.investment-plans', compact('page_title', 'plans'));
+    return view('guest.investments', compact('page_title', 'plans'));
 });
 
 Route::get('/limitation-of-liability', function () {
