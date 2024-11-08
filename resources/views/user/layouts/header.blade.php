@@ -51,7 +51,7 @@
               <div class="cp_logo_wrapper">
                 <a href="/user">
                     
-                     <img class="logo-dark" src="{{ asset('assets/images/email_logo.png') }}" srcset="{{ asset('assets/images/email_logo.png') }} 2x" alt="logo" style="width:250px">
+                     <img class="logo-dark" src="{{ asset('images/logo.jpg') }}" srcset="{{ asset('images/logo.jpg') }} 2x" alt="logo" style="width:250px">
                     <!--<h4 class="text-white" style="font-weight: 600">{{ env('SITE_NAME') }}</h4>-->
                 </a>
             </div>
