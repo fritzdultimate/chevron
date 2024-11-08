@@ -1,7 +1,6 @@
 
-@include('visitor.layouts.head')
-@include('visitor.layouts.header')
-
+@extends('visitor.layouts.app', ['title' => 'ChevronRefinery | Oil and Gas Crowdfunding Investment Opportunity.'])
+@section('content')
 <div id="wrapper" class="refer-bg" style="    padding-bottom: 50px;">
 	<div class="wrap">
     	<div class="refer">
@@ -215,4 +214,4 @@ If you do not agree with the above disclaimer, please do not go any further.
     </div>
 </div><div class="clear"></div>
 
-@include('visitor.layouts.footer')
+@endsection
