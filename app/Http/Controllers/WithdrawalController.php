@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWithdrawalRequest;
-use App\Models\MainWallet;
 use App\Models\Transactions;
 use App\Models\User;
 use App\Models\SiteSettings;
@@ -20,187 +19,141 @@ class WithdrawalController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) {
-        $page_title = env('SITE_NAME') . " Investment Website | Withdrawal";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($user->browsing_as){
-            $user = User::find($user->browsing_as);
-        }
-        $withdrawal = new Withdrawal();
-        $wallets = UserWallet::where('user_id', $user['id'])->get();
+    public function store(StoreWithdrawalRequest $request, Withdrawal $withdrawal) {
+        $user_id = Auth::id();
+
+        $validated = $request->validated();
+
+        $hash = generateTransactionHash($withdrawal, 'transaction_hash', 25);
+        $wallet_id_is_valid = UserWallet::where('id', $validated['user_wallet_id'])->first();
         
-        if($request->isMethod('post')){
-            $user_id = $user->id;
-            $hash = generateTransactionHash($withdrawal, 'transaction_hash', 25);
-            
-            
-            $user = User::find($user_id);
-            if($user['total_balance'] < $request->amount) {
-                return back()->with('error',"Insufficient fund for this transaction");
-            }
 
-            if(!$request->amount) {
-                return back()->with('error','Choose a valid amount');
-            }
+        if(!$wallet_id_is_valid) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Invalid wallet for this transaction']]
+                ], 400
+            );
+        }
+        
+        $user = User::find($user_id);
 
-            if($request->amount < 10) {
-                return back()->with('error','Minimum amount to withdraw is 10 USD');
-            }
+        if($user->deposit_balance < $validated['amount']) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Insufficient fund for this transaction']]
+                ], 403
+            );
+        }
 
-            $mainWallet = MainWallet::find($request->main_wallet_id);
+       $data = [
+           'user_id' => $user_id,
+           'transaction_hash' => $hash,
+           'user_wallet_id' => $validated['user_wallet_id'],
+           'amount' => $validated['amount'],
+           'created_at' => date('Y-m-d H:i:s'),
+           'updated_at' => date('Y-m-d H:i:s')
+       ];
 
-            if(!$mainWallet) {
-                return back()->with('error','Please choose a valid wallet');
-            }
+        $insert_data = $withdrawal->insert($data);
 
-            if(!$request->wallet_address) {
-                return back()->with('error','Enter wallet address to receive assets');
-            }
-
-            if(!$request->terms) {
-                return back()->with('error', 'Your must accept our terms & conditions to proceed!');
-            }
-            
-            $data = [
+        if($insert_data) {
+            $wallet = UserWallet::find($validated['user_wallet_id']);
+            Transactions::insert([
+                'amount' => $validated['amount'],
                 'user_id' => $user_id,
+                'currency' => $wallet->admin_wallet->currency,
                 'transaction_hash' => $hash,
-                'wallet_address' => $request->wallet_address,
-                'main_wallet_id' => $request->main_wallet_id,
-                'amount' => $request->amount,
-                // 'type' => 'total_balance',
+                'type' => 'withdrawal',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            // send email
+            
+            
+            
+
+            $details = [
+                'subject' => 'You Have Successfully Created A Withdrawal Request, Awaiting Confirmation',
+                'email' => $user->email,
+                'site_address' => env('SITE_ADDRESS'),
+                'amount' => $validated['amount'],
+                'transaction_hash' => $hash,
+                'wallet' => $wallet->admin_wallet->currency,
+                'wallet_address' => $wallet->currency_address,
+                'date' => date("Y-m-d H:i:s"),
+                'view' => 'emails.user.withdrawalrequest',
+                'username' => ucfirst(Auth::user()['name'])
             ];
-            $insert_data = $withdrawal->create($data);
 
-           
-            if($insert_data) {
-                
-                Transactions::insert([
-                    'amount' => $request->amount,
-                    'user_id' => $user_id,
-                    'currency' =>  $mainWallet->currency,
-                    'transaction_hash' => $hash,
-                    'type' => 'withdrawal',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'transaction_id' => $insert_data->id
-                ]);
-                
-                $details = [
-                    'subject' => 'You Have Successfully Created A Withdrawal Request, Awaiting Confirmation',
-                    'email' => $user->email,
-                    'site_address' => env('SITE_ADDRESS'),
-                    'amount' => $request->amount,
-                    'transaction_hash' => $hash,
-                    'wallet' =>  $mainWallet->currency,
-                    'wallet_address' => $request->wallet_address,
-                    'date' => date("Y-m-d H:i:s"),
-                    'view' => 'emails.user.withdrawalrequest',
-                    'username' => $user->name
-                ];
-                $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
-                
+            $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
+            $mailer = new \App\Mail\MailSender($details);
+            Mail::to($user->email)->send($mailer);
+            $details['view'] = 'emails.admin.withdrawalrequest';
+            $details['subject'] = 'A User Has Requested For Withdrawal';
+            $details['username'] = $user->name;
+
+            // send to admins
+            foreach($admins as $admin) {
                 $mailer = new \App\Mail\MailSender($details);
-                Mail::to($user->email)->queue($mailer);
-                $details['view'] = 'emails.admin.withdrawalrequest';
-                $details['subject'] = 'A User Has Requested For Withdrawal';
-                $details['username'] = $user->name;
+                Mail::to($admin->email)->send($mailer);
+            }
 
-                foreach($admins as $admin) {
-                    $mailer = new \App\Mail\MailSender($details);
-                    Mail::to($admin->email)->queue($mailer);
-                }
-                
-                return back()->with('success',"$insert_data->id");
-               
-            } else {
-                return back()->with('error',"Unable to create withdrawal request");
-            }
-        } else {
-            return view('user.withdrawal', compact('page_title', 'mode', 'user', 'wallets'));
+            return response()->json(
+                [
+                    'success' => ['message' => ['Withdrawal request created, please check your email for more details.']]
+                ], 201
+            );
         }
     }
-    public function pendingWithdrawals(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        $withdrawals = Withdrawal::where('status', 'pending')->orderBy('id', 'DESC')->get();
 
-        if($request->isMethod('post')){
-            if($request->action == 'approve'){
-                return $this->approve($request);
-            } else if($request->action == 'deny') {
-                return $this->deny($request);
-            } else if($request->action == 'delete'){
-                return $this->delete($request, 'pending');
-            }
-        } else {
-            return view('admin.pending-withdrawals', compact('page_title', 'mode', 'user', 'withdrawals'));
-        }
-    }
-    public function approvedWithdrawals(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($request->isMethod('post')){
-             if($request->action == 'delete'){
-                return $this->delete($request, 'approved');
-            }
-        } else{
-            $withdrawals = Withdrawal::where('status', 'accepted')->orderBy('id', 'DESC')->get();
-            return view('admin.approved-withdrawals', compact('page_title', 'mode', 'user', 'withdrawals'));
-        }
-    }
-    public function deniedWithdrawals(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($request->isMethod('post')){
-             if($request->action == 'delete'){
-                return $this->delete($request, 'denied');
-            }
-        } else{
-            $withdrawals = Withdrawal::where('status', 'denied')->orderBy('id', 'DESC')->get();
-            return view('admin.denied-withdrawals', compact('page_title', 'mode', 'user', 'withdrawals'));
-        }
-    }
-    public function approve($request) {
-        $withdrawal = new Withdrawal();
+    public function approve(Request $request, Withdrawal $withdrawal) {
+        // authenticate admin
+
+        // approve withdraw
         $withdrawal_id = $request->id;
         $is_valid_withdraw = $withdrawal->find($withdrawal_id);
 
         if(!$is_valid_withdraw) {
-            $request->session()->flash('error', "Withdrawal request not found");
-            return back();
-            
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request not found']]
+                ], 404
+            );
         }
 
         if($is_valid_withdraw->status == 'accepted') {
-            $request->session()->flash('error', "Withdrawal request already approved");
-            return back();
-            
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request already approved']]
+                ], 208
+            );
         }
 
         if($is_valid_withdraw->status == 'denied') {
-            $request->session()->flash('error', "Withdrawal request already denied");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request already denied']]
+                ], 208
+            );
         }
 
         // check if user has enough balance before debiting
         $user_details = User::find($is_valid_withdraw->user_id);
 
-        if($user_details['total_balance'] < $is_valid_withdraw->amount) {
+        if($user_details->deposit_balance < $is_valid_withdraw->amount) {
             // send user site notification about transaction approval failure
-            $request->session()->flash('error', "Error approving this request, user has insufficient funds.");
-            return back();
-            
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Error approving this request, user has insufficient funds.']]
+                ], 400
+            );
         }
 
-        $decrement_total_balance = User::where('id', $is_valid_withdraw->user_id)->decrement('total_balance', $is_valid_withdraw->amount);
-        if($decrement_total_balance) {
+        $decrement_deposit_balance = User::where('id', $is_valid_withdraw->user_id)->decrement('deposit_balance', $is_valid_withdraw->amount);
+        if($decrement_deposit_balance) {
             $approved_withdrawal = $withdrawal->where('id', $withdrawal_id)->update(
                 [
                     'status' => 'accepted',
@@ -215,8 +168,8 @@ class WithdrawalController extends Controller
                     'subject' => 'Your Withdrawal Request Has Been Processed And Approved',
                     'amount' => $is_valid_withdraw->amount,
                     'transaction_hash' => $is_valid_withdraw->transaction_hash,
-                    'wallet' => $is_valid_withdraw->wallet->currency,
-                    'wallet_address' => $is_valid_withdraw->wallet_address,
+                    'wallet' => $is_valid_withdraw->user_wallet->admin_wallet->currency,
+                    'wallet_address' => $is_valid_withdraw->user_wallet->currency_address,
                     'date' => date("Y-m-d H:i:s"),
                     'view' => 'emails.user.withdrawalapproved',
                     'username' => $user->name,
@@ -224,17 +177,17 @@ class WithdrawalController extends Controller
                 ];
 
                 $mailer = new \App\Mail\MailSender($details);
-                Mail::to($user->email)->queue($mailer);
+                Mail::to($user->email)->send($mailer);
 
                 $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
                 $details['view'] = 'emails.admin.withdrawalapproved';
                 $details['subject'] = 'A Withdrawal Request Was Approved';
 
                 // send to admins
-                // foreach($admins as $admin) {
-                //     $mailer = new \App\Mail\MailSender($details);
-                //     Mail::to($admin->email)->queue($mailer);
-                // }
+                foreach($admins as $admin) {
+                    $mailer = new \App\Mail\MailSender($details);
+                    Mail::to($admin->email)->send($mailer);
+                }
 
                 // update wallet transaction count
                 // AdminWallet::where([
@@ -244,35 +197,52 @@ class WithdrawalController extends Controller
                 // update total withdrawn
                 User::where('id', $is_valid_withdraw->user_id)->increment('total_withdrawn', $is_valid_withdraw->amount);
 
-                $request->session()->flash('success', "Withdrawal approved.");
-                return back();
+                return response()->json(
+                    [
+                        'success' => ['message' => ['Withdrawal approved.']]
+                    ], 201
+                );
             }
         } else {
-            $request->session()->flash('error', "something unexpectedly went wrong");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['something unexpectedly went wrong.']]
+                ], 500
+            );
         }
 
 
     }
 
-    public function deny($request) {
-        $withdrawal = new Withdrawal();
+    public function deny(Request $request, Withdrawal $withdrawal) {
+        // authenticate admin
+
+        // deny withdraw
         $withdrawal_id = $request->id;
         $is_valid_withdrawal = $withdrawal->find($withdrawal_id);
 
         if(!$is_valid_withdrawal) {
-            $request->session()->flash('error', "Withdrawal request not found");
-           return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request not found']]
+                ], 404
+            );
         }
 
         if($is_valid_withdrawal->status == 'accepted') {
-            $request->session()->flash('error', "Withdrawal request already approved");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request already approved']]
+                ], 208
+            );
         }
 
         if($is_valid_withdrawal->status == 'denied') {
-            $request->session()->flash('error', "Withdrawal request already denied");
-           return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Withdrawal request already denied']]
+                ], 208
+            );
         }
 
         if($is_valid_withdrawal) {
@@ -299,40 +269,51 @@ class WithdrawalController extends Controller
                 ];
 
                 $mailer = new \App\Mail\MailSender($details);
-                // Mail::to($user->email)->queue($mailer);
+                Mail::to($user->email)->send($mailer);
 
                 $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
                 $details['view'] = 'emails.admin.withdrawaldenied';
                 $details['subject'] = 'A Withdrawal Request Was Denied';
 
                 // send to admins
-                // foreach($admins as $admin) {
-                //     $mailer = new \App\Mail\MailSender($details);
-                //     // Mail::to($admin->email)->queue($mailer);
-                // }
+                foreach($admins as $admin) {
+                    $mailer = new \App\Mail\MailSender($details);
+                    Mail::to($admin->email)->send($mailer);
+                }
 
-                $request->session()->flash('success', "Withdrawal denied.");
-                return back();
+                return response()->json(
+                    [
+                        'success' => ['message' => ['Withdrawal denied.']]
+                    ], 201
+                );
             }
         } else {
-            $request->session()->flash('error', "something unexpectedly went wrong.");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['something unexpectedly went wrong.']]
+                ], 500
+            );
         }
     }
     
-    public function delete(Request $request, $type) {
-        $withdrawal = new Withdrawal();
+    public function delete(Request $request, Withdrawal $withdrawal) {
         $withdrawal_id = $request->id;
-        $is_valid_withdrawal = $withdrawal->find($withdrawal_id);
+        $is_valid_withdrawal = $withdrawal->where('id', $withdrawal_id)->first();
 
         if(!$is_valid_withdrawal) {
-            $request->session()->flash('error', "withdrawal not found");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['withdrawal not found']]
+                ], 404
+            );
         } else {
             $delete_withdrawal = $withdrawal->where('id', $withdrawal_id)->delete();
             if($delete_withdrawal){
-                $request->session()->flash('success', "withdrawal Deleted");
-                return back();
+                return response()->json(
+                    [
+                        'success' => ['message' => ['withdrawal Deleted']]
+                    ], 201
+                );
             }
         }
     }
