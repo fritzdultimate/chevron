@@ -221,7 +221,7 @@ class HomeController extends Controller {
         $page_title = env('SITE_NAME') . " Investment Website";
         $settings = SiteSettings::latest()->first();
         $main_wallets = MainWallet::all();
-        return view('visitor.login', compact('page_title', 'settings', 'main_wallets'));
+        return view('guest.login', compact('page_title', 'settings', 'main_wallets'));
     }
     public function logout(Request $request){
         Auth::logout();
@@ -231,7 +231,7 @@ class HomeController extends Controller {
         $page_title = env('SITE_NAME') . " Investment Website";
         $settings = SiteSettings::latest()->first();
         $main_wallets = MainWallet::all();
-        return view('visitor.register', compact('page_title', 'settings', 'main_wallets'));
+        return view('guest.register', compact('page_title', 'settings', 'main_wallets'));
     }
     public function referralBonus(Request $request){
         $page_title = env('SITE_NAME') . " Investment Website | Manage Referral Bonus";
