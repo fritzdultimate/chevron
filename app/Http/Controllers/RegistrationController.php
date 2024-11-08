@@ -12,6 +12,7 @@ use App\Http\Requests\VerificationRequest;
 use App\Models\EmailToken;
 use App\Models\SiteSettings;
 use App\Models\User;
+use App\Models\UserDoc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,98 +20,87 @@ use Illuminate\Support\Facades\Mail;
 
 class RegistrationController extends Controller {
     
-    public function index(Request $request) {
-       $page_title = env('SITE_NAME') . " | Registration";
-        $user = new User();
-        if($request->isMethod('post')) { 
-            // $request = new RegistrationRequet();
-            $validated = $request->validate([
-                'email' => 'required|unique:users,email,except,id|email:filter', 
-                'username' => 'required|alpha_num|unique:users,name,except,id',
-                'password' => 'required|min:6',
-                // 'phone' => 'required',
-            ]);
+    public function index(RegistrationRequet $request) {
+        $validated = $request->validated();
 
-            $referrer = User::where('uid', $request->uid)->first();
-            $uid = generateTransactionHash($user, 'uid', 3);
+        $has_referral = !empty($request->query('ref'));
+        $referrer = User::where('name', $request->query('ref'))->first();
 
-            $data = [
-                'email' => $validated['email'],
-                'name' => $validated['username'],
-                'firstname' => $request->firstname,
-                'lastname' => $request->lastname,
-                'middlename' => $request->middlename,
-                'phone' => $request->phone,
-                'password' => $validated['password'],
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-                'uid' => $uid
+        $data = [
+            'email' => $validated['email'],
+            'name' => $validated['username'],
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'middlename' => $request->middlename,
+            'password' => Hash::make($validated['password']),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        if($has_referral && $referrer) {
+            $data['referrer'] = $request->query('ref');
+            // send email
+            $site_settings = SiteSettings::first();
+            $details = [
+                'username' => $request->query('ref'),
+                'registered_user' => $validated['username'],
+                'subject' => 'Registration Of New Referred User',
+                'date' => date("Y-m-d H:i:s"),
+                'view' => 'emails.user.referralnotice',
+                'site_name' => $site_settings->site_name,
+                'settings' => $site_settings,
+                'email' => $referrer['email'],
+                'site_address' => $site_settings['site_address']
             ];
 
-            if(!empty($request->uid) && $referrer) {
-                $data['referrer_uid'] = $request->uid;
-                // send email
-                $site_settings = SiteSettings::first();
-                $details = [
-                    'username' => $referrer->name,
-                    'registered_user' => $validated['username'],
-                    'subject' => 'Registration Of New Referred User',
-                    'date' => date("Y-m-d H:i:s"),
-                    'view' => 'emails.user.referralnotice',
-                    'site_name' => env('SITE_NAME '),
-                    'email' => $referrer['email'],
-                    'site_address' => env('SITE_ADDRESS')
-                ];
-
-                $mailer = new \App\Mail\MailSender($details);
-                Mail::to($referrer->email)->send($mailer);
-            }
-
-            $create_user_account = User::insert($data);
-
-            if($create_user_account) {
-                $token =  rand(100000, 999999);
-
-                EmailToken::insert([
-                    'token' => $token,
-                    'email' => $validated['email'],
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-
-                $details = [
-                    'username' => $validated['username'],
-                    'email' => $validated['email'],
-                    'token' => $token,
-                    'subject' => 'Registration Completed, Waiting Verification',
-                    'date' => date("Y-m-d H:i:s"),
-                    'site_address' => 'ojokwu kwuru si mugu is migu',
-                    'view' => 'emails.user.registered',
-                    'uid' => $uid
-                ];
-
-                $mailer = new \App\Mail\MailSender($details);
-                try {
-                    Mail::to($validated['email'])->send($mailer);
-                    return response()->json([
-                        'success' => ['message' => ['Account created successfully, please check the mail sent to the provided email address for verification, after ten minutes the email will expire.']]
-                    ], 200);
-                    // $request->session()->flash('success', 'Account created successfully, please check the mail sent to the provided email address for verification, after ten minutes the email will expire.');
-                    // return back();
-                } catch(\Exception $e){
-                    return response()->json([
-                        'error' => ['message' => ['Unable to send verification mail. Please contact support.']]
-                    ], 401);
-                }
-            } else {
-                return response()->json([
-                    'error' => ['message' => ['Error registering account.']]
-                ], 401);
-            }
-        } else {
-            return view('auth.register', compact('page_title'));
+            $mailer = new \App\Mail\MailSender($details);
+            Mail::to($referrer->email)->send($mailer);
         }
         
+        $create_user_account = User::insert($data);
+
+        
+        
+
+        if($create_user_account) {
+    
+            $token = time();
+            // $token = $request->file('image')->getClientOriginalName();
+            // $token =  rand(100000, 999999);
+
+            EmailToken::insert([
+                'token' => $token,
+                'email' => $validated['email'],
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $details = [
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'token' => $token,
+                'subject' => 'Registration Completed, Waiting Verification',
+                'date' => date("Y-m-d H:i:s"),
+                'site_address' => 'ojokwu kwuru si mugu is migu',
+                'view' => 'emails.user.verification'
+            ];
+
+            $mailer = new \App\Mail\MailSender($details);
+            Mail::to($validated['email'])->send($mailer);
+            
+             return response()->json(
+                [
+                    'success'=> ['message' => ['Account created successfully, please check the mail sent to the provided email address for verification, after ten minutes the email will expire.']]
+                ], 201
+            );
+            
+        } else {
+            return response()->json(
+                [
+                    'errors'=> ['message' => ['Error creating account']]
+                ], 403
+            );
+        }
     }
 
     public function resendVerificationEmail(ResendVerificationToken $request) {
@@ -384,16 +374,14 @@ class RegistrationController extends Controller {
         $already_verified = '';
         $email = $request->input('email');
         $token = $request->input('token');
-        if(!$token) return redirect('/login');
+
         $user = User::where('email', $email)->first();
 
+        if($user->email_verified_at) {
+            return view('verification-error', ['page_title' => env('SITE_NAME') . ' | Account Verification', 'message' =>'Your account has already been verified, please login'] );
+        }
         if(!$user) {
             return view('verification-error', ['page_title' => env('SITE_NAME') . ' | Account Verification', 'message' =>'Unknown User']);
-        }
-        
-        if($user->email_verified_at) {
-            
-            return view('verification-error', ['page_title' => env('SITE_NAME') . ' | Account Verification', 'message' =>'Your account has already been verified, please login'] );
         }
 
         $email_tokens = EmailToken::where('token', $token)->first();
