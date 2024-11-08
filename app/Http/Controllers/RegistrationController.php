@@ -28,7 +28,7 @@ class RegistrationController extends Controller {
                 'email' => 'required|unique:users,email,except,id|email:filter', 
                 'username' => 'required|alpha_num|unique:users,name,except,id',
                 'password' => 'required|min:6',
-                'phone' => 'required',
+                // 'phone' => 'required',
             ]);
 
             $referrer = User::where('uid', $request->uid)->first();
