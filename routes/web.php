@@ -25,7 +25,7 @@ Route::get('/admin/ids', [App\Http\Controllers\HomeController::class, 'ids']);
 
 Route::get('/about-us', function () {
     $title = env("SITE_NAME") . " - About Us";
-    return view('guest.about-us', compact('title'));
+    return view('guest.new_about-us', compact('title'));
 });
 
 Route::get('/privacy', function () {
