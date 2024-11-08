@@ -40,7 +40,7 @@ Route::get('/terms', function () {
 
 Route::get('/product-and-services', function () {
     $page_title = env("SITE_NAME") . " - Product and services";
-    return view('visitor.product-and-services', compact('page_title'));
+    return view('guest.product-and-services', compact('page_title'));
 });
 
 Route::get('/investments', function () {
