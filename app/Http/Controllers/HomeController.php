@@ -43,7 +43,7 @@ class HomeController extends Controller {
         $deposits = Deposit::where('status', 'accepted')->orderBy('created_at','desc')->take(15)->get();
         $withdrawals = Withdrawal::where('status', 'accepted')->orderBy('created_at','desc')->take(15)->get();
         $fake_withdrawals = FakeWithdrawal::orderBy('created_at','desc')->take(15)->get();
-        return view('guest.index', compact('page_title', 'fake_withdrawals', 'deposits', 'withdrawals', 'plans', 'parent_plans', 'faqs', 'settings', 'reviews', 'main_wallets'));
+        return view('guest.new_index', compact('page_title', 'fake_withdrawals', 'deposits', 'withdrawals', 'plans', 'parent_plans', 'faqs', 'settings', 'reviews', 'main_wallets'));
     }
     
     public function pricing() {
