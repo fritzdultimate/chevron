@@ -305,7 +305,7 @@ class HomeController extends Controller {
         $title = env("SITE_NAME") . " - Contact Us";
         $settings = SiteSettings::latest()->first();
         $faqs = Faq::orderBy('priority', 'ASC')->get();
-        return view('visitor.contact-us', compact('faqs', 'title', 'settings'));
+        return view('guest.contact-us', compact('faqs', 'title', 'settings'));
     }
     
     public function support(Request $request){
