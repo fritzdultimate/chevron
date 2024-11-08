@@ -1,5 +1,5 @@
-@include('visitor.layouts.head')
-@include('visitor.layouts.header')
+@extends('visitor.layouts.app', ['title' => 'ChevronRefinery | Oil and Gas Crowdfunding Investment Opportunity.'])
+@section('content')
 
 
 <style>
@@ -193,4 +193,4 @@
     <script src="{{ asset('dash/js/fn.js') }}"></script>
     <script src="{{ asset('dash/js/login.js') }}"></script>
 
-@include('visitor.layouts.footer')
+@endsection
