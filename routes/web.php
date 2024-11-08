@@ -25,17 +25,17 @@ Route::get('/admin/ids', [App\Http\Controllers\HomeController::class, 'ids']);
 
 Route::get('/about-us', function () {
     $title = env("SITE_NAME") . " - About Us";
-    return view('visitor.about-us', compact('title'));
+    return view('guest.about-us', compact('title'));
 });
 
 Route::get('/privacy', function () {
     $page_title = env("SITE_NAME") . " - Privacy & Policy";
-    return view('visitor.privacy', compact('page_title'));
+    return view('guest.privacy', compact('page_title'));
 });
 
 Route::get('/terms', function () {
     $page_title = env("SITE_NAME") . " - Terms & Conditions";
-    return view('visitor.terms', compact('page_title'));
+    return view('guest.terms', compact('page_title'));
 });
 
 Route::get('/product-and-services', function () {
@@ -46,7 +46,7 @@ Route::get('/product-and-services', function () {
 Route::get('/investments', function () {
     $plans = ChildInvestmentPlan::orderBy('minimum_amount', 'asc')->get();
     $page_title = env("SITE_NAME") . " - Investment Plans";
-    return view('visitor.investment-plans', compact('page_title', 'plans'));
+    return view('guest.investment-plans', compact('page_title', 'plans'));
 });
 
 Route::get('/limitation-of-liability', function () {
