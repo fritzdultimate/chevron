@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDepositRequest;
-use App\Jobs\SendAccountReferrerConfirmationEmail;
 use App\Models\AdminWallet;
 use App\Models\ChildInvestmentPlan;
 use App\Models\Deposit;
@@ -12,105 +11,78 @@ use App\Models\ReferrersInterestRelationship;
 use App\Models\Transactions;
 use App\Models\User;
 use App\Models\UserWallet;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-// use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class DepositController extends Controller {
-    
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Deposit $deposit) {
+    public function store(StoreDepositRequest $request, Deposit $deposit) {
 
-        
-        // $validated = $request->validated();
+        $validated = $request->validated();
 
        $hash = generateTransactionHash($deposit, 'transaction_hash', 25);
 
-       $childPlan = ChildInvestmentPlan::where('id', $request->child_plan_id)->first();
-       $wallet_id_is_valid = MainWallet::where('id', $request->main_wallet_id)->first();
-
-        // $wallet_id_is_valid = $request->main_wallet_id;
-
-
-        // dd($request->main_wallet_id);
+       $plan_name_is_valid = ChildInvestmentPlan::where('id', $validated['child_plan_id'])->first();
+       $wallet_id_is_valid = UserWallet::where('id', $validated['user_wallet_id'])->first();
 
        if(!$wallet_id_is_valid) {
-            // return response()->json(
-            //     [
-            //         'errors' => ['message' => ['Please goto settings and update your wallets details']]
-            //     ], 401
-            // );
-            // $request->session()->flash('error', "Please goto settings and update your wallets details");
-            return back()->with('error','Please sellet wallet from options');
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Please goto settings and update your wallets details']]
+                ], 401
+            );
        }
 
-       if(!$childPlan) {
-            // return response()->json(
-            //     [
-            //         'errors' => ['message' => ['Unknown investment plan has been submitted and failed']]
-            //     ], 401
-            // );
-            return back()->with('error','Unknown investment plan has been submitted and failed');
+       if(!$plan_name_is_valid) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Unknown investment plan has been submitted and failed']]
+                ], 401
+            );
        }
 
+       $plan_models = ChildInvestmentPlan::where('id', $validated['child_plan_id'])->first();
 
         //validate submited data, to match exactly what is expected...
-       if($childPlan->minimum_amount > $request->amount || $childPlan->maximum_amount < $request->amount) {
-            // return response()->json(
-            //     [
-            //         'errors' => ['message' => ['Amount out of range of the selected plan']]
-            //     ], 401
-            // );
-
-            return back()->with('error', 'Amount out of range of the selected plan');
+       if($plan_models->minimum_amount > $validated['amount'] || $plan_models->maximum_amount < $validated['amount']) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Amount out of range of the selected plan']]
+                ], 401
+            );
        }
-
-        if(!$request->terms) {
-            return back()->with('error', 'Your must accept our terms & conditions to proceed!');
-        }
-
-        
 
        $user_id = Auth::id();
 
-
        $data = [
            'user_id' => $user_id,
-            'child_plan_id' => $childPlan->id,
-            'transaction_hash' => $hash,
-            'main_wallet_id' => $wallet_id_is_valid->id,
-            'amount' => $request->amount,
-            'plan_name' => $childPlan->name,
-           'plan_interest_rate' => $childPlan->interest_rate,
-           'plan_referral_bonus' => $childPlan->referral_bonus,
-           'plan_duration' => $childPlan->duration,
-           'remaining_duration' => $childPlan->duration,
+           'child_investment_plan_id' => $plan_models->id,
+           'transaction_hash' => $hash,
+           'user_wallet_id' => $validated['user_wallet_id'],
+           'amount' => $validated['amount'],
+           'remaining_duration' => $plan_models->duration,
            'created_at' => date('Y-m-d H:i:s'),
-           'updated_at' => date('Y-m-d H:i:s'),
-        //    'user_wallet_id' => 6
+           'updated_at' => date('Y-m-d H:i:s')
        ];
 
-        $create_deposit = $deposit->create($data);
+        $create_deposit = $deposit->insert($data);
 
         if($create_deposit) {
-            ChildInvestmentPlan::where('id', $childPlan->id)->increment('total_deposited', $request->amount);
-            // $user_wallet = UserWallet::find($request->main_wallet_id);
-            // $wallet = MainWallet::find($request->main_wallet_id);
+            ChildInvestmentPlan::where('id', $plan_models->id)->increment('total_deposited', $validated['amount']);
+            $user_wallet = UserWallet::find($validated['user_wallet_id']);
+            $wallet = MainWallet::find($user_wallet['main_wallet_id']);
             Transactions::insert([
-                'amount' => $request->amount,
+                'amount' => $validated['amount'],
                 'user_id' => $user_id,
-                'currency' => $request->main_wallet_id,
+                'currency' => $wallet->currency,
                 'transaction_hash' => $hash,
                 'type' => 'deposit',
-                'transaction_id' => $create_deposit->id,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
@@ -119,274 +91,186 @@ class DepositController extends Controller {
             $user = User::find($user_id);
 
             $details = [
-
                 'subject' => 'New Deposit Request Created Successfully',
                 'username' => $user->name,
-                'amount' => $request->amount, 
+                'amount' => $validated['amount'], 
                 'transaction_hash' => $hash,
-                'wallet' => $request->main_wallet_id,
-                'plan' => $childPlan->name,
-                'duration' => $childPlan->duration,
-                'wallet_address' => $create_deposit->wallet->currency_address,
+                'wallet' => $wallet->currency,
+                'plan' => $plan_name_is_valid->name,
+                'duration' => $plan_name_is_valid->duration,
+                'wallet_address' => $wallet->currency_address,
                 'date' => date("Y-m-d H:i:s"),
                 'view' => 'emails.user.depositrequest',
                 'email' => $user->email
             ];
 
             $mailer = new \App\Mail\MailSender($details);
-            Mail::to($user->email)->queue($mailer);
+            Mail::to($user->email)->send($mailer);
 
-
-            // $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
-            // $details['view'] = 'emails.admin.depositrequest';
-            // $details['subject'] = 'A client has recently created a new deposit request on '. env('SITE_NAME');
+            $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
+            $details['view'] = 'emails.admin.depositrequest';
+            $details['subject'] = 'A client has recently created a new deposit request on '. env('SITE_NAME');
 
             // send to admins
-            // foreach($admins as $admin) {
-            //     $mailer = new \App\Mail\MailSender($details);
-            //     Mail::to($admin->email)->queue($mailer);
-            // }
+            foreach($admins as $admin) {
+                $mailer = new \App\Mail\MailSender($details);
+                Mail::to($admin->email)->send($mailer);
+            }
 
-            // return response()->json(
-            //     [
-            //         'success' => ['message' => ['Deposit request was successfully created'], 'wallet' => $wallet_id_is_valid->admin_wallet]
-            //     ], 201
-            // );
-
-            
-
-            session()->flash('success', ['pay_address' => $create_deposit->wallet->currency_address, 'deposit_id' => $create_deposit->id]);
-
-            return back()->withInput(['pay_address' => $create_deposit->wallet->currency_address, 'deposit_id' => $create_deposit->id, 'success' => true]);
+            return response()->json(
+                [
+                    'success' => ['message' => ['Deposit request was successfully created'], 'wallet' => $wallet_id_is_valid->admin_wallet]
+                ], 201
+            );
         }
 
-        // return response()->json(
-        //     [
-        //         'errors' => ['message' => ['Something is not right, our team is working towards restoring the service asap! If this persist, please contact our support.']]
-        //     ], 401
-        // );
-
-        return back()->with('error', 'Something is not right, our team is working towards restoring the service asap! If this persist, please contact our support.');
+        return response()->json(
+            [
+                'errors' => ['message' => ['Something is not right, our team is working towards restoring the service asap! If this persist, please contact our support.']]
+            ], 401
+        );
         
     }
 
-    public function reinvest(Request $request, Deposit $deposit) {
-        $page_title = env('SITE_NAME') . " Investment Website | Reinvest";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($user->browsing_as){
-            $user = User::find($user->browsing_as);
+    public function reinvest(StoreDepositRequest $request, Deposit $deposit) {
+        $validated = $request->validated();
+        $user_id = Auth::id();
+        $user = User::find($user_id);
+        
+        $hash = generateTransactionHash($deposit, 'transaction_hash', 25);
+
+        $user_wallet_model = UserWallet::where('id', $request->user_wallet_id)->first();
+        
+        if(!$user_wallet_model) {
+
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Unknown Wallet provided for this transaction']]
+                ], 401
+            );
         }
-        $plans = ChildInvestmentPlan::all();
-        $wallets = MainWallet::get();
 
-        if($request->isMethod('post')){
-            // $validated = $request->validate([
-            //     'child_plan_id' => 'required', 
-            //     'amount' => 'required',
-            //     'user_wallet_id' => 'required'
-            // ]);
-            
-            $user_id = Auth::id();
-            $user = User::find($user_id);
-            
-            $hash = generateTransactionHash($deposit, 'transaction_hash', 25);
+        if($user->deposit_balance < $validated['amount']) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Investment amount less than deposit balance']]
+                ], 401
+            );
+        }
 
-            // $user_wallet_model = MainWallet::where('id', $request->main_wallet_id)->first();
-            
-            // if(!$user_wallet_model) {
-            //     return back()->with('error','Unknown Wallet provided for this transaction');
-            // }
+        $plan_details = ChildInvestmentPlan::where('id', $validated['child_plan_id'])->first();
 
-            if($user->total_balance < $request->amount) {
-                return back()->with('error','Insufficient funds');
-            }
+       if(!$plan_details) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Invalid plan seleted']]
+                ], 401
+            );
+       }
 
-            $plan_details = ChildInvestmentPlan::where('id', $request->child_plan_id)->first();
+        //validate submited data, to match exactly what is expected...
+       if($plan_details->minimum_amount > $validated['amount'] || $plan_details->maximum_amount < $validated['amount']) {
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Amount out of range of the selected plan']]
+                ], 401
+            );
+       }
 
-            if(!$plan_details) {
-                return back()->with('error','Invalid plan seleted');
-            }
+       $user_id = Auth::id();
 
-                //validate submited data, to match exactly what is expected...
-            if($plan_details->minimum_amount > $request->amount || $plan_details->maximum_amount < $request->amount) {
-                return back()->with('error','Amount out of range of the selected plan');
-            }
+        $data = [
+            'user_id' => Auth::id(),
+            'child_investment_plan_id' => $plan_details->id,
+            'transaction_hash' => $hash,
+            'user_wallet_id' => $validated['user_wallet_id'],
+            'amount' => $validated['amount'],
+            'remaining_duration' => $plan_details->duration,
+            'reinvestment' => '1',
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
 
-            if(!$request->terms) {
-                return back()->with('error', 'Your must accept our terms & conditions to proceed!');
-            }
+        $insert_data = $deposit->insert($data);
 
-            $user_id = Auth::id();
-
-            $data = [
-                'user_id' => Auth::id(),
-                
-                'child_plan_id' => $plan_details->id,
+        if($insert_data) {
+            // User::where('id', Auth::id())->increment('currently_invested', $validated['amount']);
+            // User::where('id', Auth::id())->decrement('deposit_balance', $validated['amount']);
+            // ChildInvestmentPlan::where('id', $plan_details->id)->increment('total_deposited', $validated['amount']);
+            $wallet = UserWallet::find($validated['user_wallet_id']);
+            Transactions::insert([
+                'amount' => $validated['amount'],
+                'user_id' => $user_id,
+                'currency' => $wallet->admin_wallet->currency,
                 'transaction_hash' => $hash,
-                // 'main_wallet_id' => 7,
-                // 'wallet' => $request->main_wallet_id,
-                // 'main_wallet_id' => $user_wallet_model->id,
-                'amount' => $request->amount,
-                'remaining_duration' => $plan_details->duration,
-                'plan_name' => $plan_details->name,
-                'plan_interest_rate' => $plan_details->interest_rate,
-                'plan_referral_bonus' => $plan_details->referral_bonus,
-                'plan_duration' => $plan_details->duration,
-                'reinvestment' => '1',
-                'status' => 'accepted',
-                'running' => 1,
-                'approved_at' => date('Y-m-d H:i:s'),
+                'type' => 'reinvestment',
                 'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-                // 'user_wallet_id' => 6
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // send email
+            $user = User::find($user_id);
+            $details = [
+                'subject' => 'New Reinvestment Request Created Successfully',
+                'username' => $user->name,
+                'amount' => $validated['amount'], 
+                'transaction_hash' => $hash,
+                'wallet' => $wallet->currency,
+                'plan' => $plan_details->name,
+                'duration' => $plan_details->duration,
+                'wallet_address' => $wallet->currency_address,
+                'date' => date("Y-m-d H:i:s"),
+                'view' => 'emails.user.reinvestmentrequest',
+                'email' => $user->email
             ];
 
-            $create_reinvestment = $deposit->create($data);
+            $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
 
-            if($create_reinvestment) {
-                ChildInvestmentPlan::where('id', $plan_details->id)->increment('total_deposited', $request->amount);
-                User::where('id', $user_id)->decrement('total_balance', $request->amount);
-                User::where('id', $user_id)->increment('currently_invested', $request->amount);
-                // $wallet = MainWallet::find(7);
-                Transactions::insert([
-                    'amount' => $request->amount,
-                    'user_id' => $user_id,
-                    'currency' => 'None',
-                    'transaction_hash' => $hash,
-                    'type' => 'reinvestment',
-                    'transaction_id' => $create_reinvestment->id,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
+            $mailer = new \App\Mail\MailSender($details);
+            Mail::to($user->email)->send($mailer);
+            $details['view'] = 'emails.admin.reinvestmentrequest';
 
-                // send email
-                $user = User::find($user_id);
-                $details = [
-                    'subject' => 'New Reinvestment Created Successfully',
-                    'username' => $user->name,
-                    'amount' => $request->amount, 
-                    'transaction_hash' => $hash,
-                    'wallet' => 'None',
-                    'plan' => $plan_details->name,
-                    'duration' => $plan_details->duration,
-                    'wallet_address' => 'None',
-                    'date' => date("Y-m-d H:i:s"),
-                    'view' => 'emails.user.reinvestmentrequest',
-                    'email' => $user->email,
-                ];
-
-                $admins = User::where(['is_admin' => 1, 'permission' => '1'])->get();
-
+            // send to admins
+            foreach($admins as $admin) {
                 $mailer = new \App\Mail\MailSender($details);
-                Mail::to($user->email)->queue($mailer);
-                $details['view'] = 'emails.admin.reinvestmentrequest';
-
-                // send to admins
-                foreach($admins as $admin) {
-                    $mailer = new \App\Mail\MailSender($details);
-                    Mail::to($admin->email)->queue($mailer);
-                }
-
-                session()->flash('success', ['deposit_id' => $create_reinvestment->id]);
-
-                return back()->withInput(['deposit_id' => $create_reinvestment->id, 'success' => true]);
-
-                // return back()->with('success',"$create_reinvestment->id");
+                Mail::to($admin->email)->send($mailer);
             }
-            return back()->with('error','Something is not right, please try again');
-        } else {
-            return view('user.reinvest', compact('page_title', 'mode', 'user', 'plans', 'wallets'));
+
+            return response()->json(
+                [
+                    'success' => ['message' => ['Reinvestment created successfully'], 'wallet' => $user_wallet_model->admin_wallet]
+                ], 201
+            );
         }
+
+        return response()->json(
+            [
+                'errors' => ['message' => ['Something is not right, please try again']]
+            ], 401
+        );
     }
-    public function pendingDeposits(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($request->isMethod('post')){
-            if($request->action == 'approve'){
-                return $this->approve($request);
-            } else if($request->action == 'deny') {
-                return $this->deny($request);
-            } else if($request->action == 'delete'){
-                return $this->delete($request);
-            }
-        } else{
-            $deposits = Deposit::where('status', 'pending')->orderBy('id', 'DESC')->get();
-            return view('admin.pending-deposits', compact('page_title', 'mode', 'user', 'deposits'));
-        }
-    }
-    public function deniedDeposits(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($request->isMethod('post')){
-             if($request->action == 'delete'){
-                return $this->delete($request, 'denied');
-            }
-        } else{
-            $deposits = Deposit::where('status', 'denied')->orderBy('id', 'DESC')->get();
-            return view('admin.denied-deposits', compact('page_title', 'mode', 'user', 'deposits'));
-        }
-    }
-    public function approvedDeposits(Request $request){
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
-        if($request->isMethod('post')){
-             if($request->action == 'delete'){
-                return $this->delete($request, 'approved');
-            }
-            else if($request->action == 'edit') {
-                return $this->edit($request, 'edited');
-            }
-        } else{
-            $deposits = Deposit::where('status', 'accepted')->orderBy('id', 'DESC')->get();
-            return view('admin.approved-deposits', compact('page_title', 'mode', 'user', 'deposits'));
-        }
-    }
-   
-    public function edit(Request $request) {
-        // DB::beginTransaction();
-        
-        $deposit = Deposit::find($request->id);
 
-        if(!$deposit) return back()->with('error', 'Deposit request not found');
-        
-        $currentDepositAmount = $deposit->amount;
-        $amountDifference = $request->amount - $currentDepositAmount;
+    public function approve(Request $request, Deposit $deposit) {
+        // authenticate admin
 
-        $deposit->update([
-            'plan_name' => $request->plan_name,
-            'amount' => $request->amount,
-            'plan_interest_rate' => $request->plan_interest_rate,
-            'remaining_duration' => $request->remaining_duration,
-        ]);
- 
-        if($currentDepositAmount != $request->amount) {
-            $differenceAction = $amountDifference < 0 ? 'decrement' : 'increment'; 
-            
-            $deposit->user->{$differenceAction}('currently_invested', abs($amountDifference));
-        }
-
-        return back()->with('success', "Deposit updated successfully");
-
-     }
-    
-    public function approve(Request $request) {
-       $deposit =  new Deposit();
+        // approve deposit
         $deposit_id = $request->id;
         $is_valid_deposit = $deposit->where('id', $deposit_id)->first();
 
-        $deposits = Deposit::where('status', 'pending')->orderBy('id', 'DESC')->get();
         if(!$is_valid_deposit) {
-            $request->session()->flash('error', "Deposit request not found");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Deposit request not found']]
+                ], 404
+            );
         }
 
         if($is_valid_deposit->status == 'accepted') {
-            $request->session()->flash('error', "Deposit already approved");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Deposit already approved']]
+                ], 208
+            );
         }
 
         $approved_deposit = $deposit->where('id', $deposit_id)->update(
@@ -396,48 +280,37 @@ class DepositController extends Controller {
                 'running' => 1,
                 'approved_at' => date("Y-m-d H:i:s")
             ]);
+        
 
         if($approved_deposit) {
-            
             $user_has_invested = User::where('id', $is_valid_deposit->user_id)->select(['invested'])->first();
-            // dd($user_has_invested->invested);
             if(!$user_has_invested->invested) {
                 User::where('id', $is_valid_deposit->user_id)->update([
                     'invested' => 1
                 ]);
             }
-            
-            if($is_valid_deposit->reinvestment){
-                User::where('id', $is_valid_deposit->user_id)->decrement('total_balance', $is_valid_deposit->amount);
-            }
-            
-            $referrer = $is_valid_deposit->user->referrer_uid;
-            
+            $referrer = $is_valid_deposit->user->referrer;
             if($referrer) {
-                $referrer_data = User::where('uid', $referrer)->first();
+                $referrer_data = User::where('name', $referrer)->first();
                 $interest_receiver_id = $referrer_data->id;
                 $depositor_id = $is_valid_deposit->user_id;
                 $deposit_id = $is_valid_deposit->id;
 
                 $record_exist_in_referrers_interest_relationship_table = ReferrersInterestRelationship::where([
                     'interest_receiver_id' => $interest_receiver_id,
-                    'child_plan_id' => $is_valid_deposit->child_plan_id,
                     'depositor_id' => $depositor_id
                 ])->first();
 
                 if(!$record_exist_in_referrers_interest_relationship_table) {
-                    $referrer_interest_rate = $is_valid_deposit->plan_referral_bonus;
+                    $referrer_interest_rate = $is_valid_deposit->plan->referral_bonus;
                     $referrer_bonus = ($is_valid_deposit->amount/100) * $referrer_interest_rate;
 
-                    $credit_referrer_bonus = User::where('id', $interest_receiver_id)->increment('total_balance', $referrer_bonus);
-                    
-                    User::where('id', $interest_receiver_id)->increment('referral_bonus', $referrer_bonus);
+                    $credit_referrer_bonus = User::where('id', $interest_receiver_id)->increment('referral_bonus', $referrer_bonus);
 
                     if($credit_referrer_bonus) {
                         $insert_into_referrers_interest_relationshipt_table = ReferrersInterestRelationship::insert([
                             'interest_receiver_id' => $interest_receiver_id,
                             'depositor_id' => $depositor_id,
-                            'child_plan_id' => $is_valid_deposit->child_plan_id,
                             'deposit_id' => $is_valid_deposit->id,
                             'amount' => $referrer_bonus,
                             'created_at' => date('Y-m-d H:i:s'),
@@ -457,7 +330,7 @@ class DepositController extends Controller {
                             ];
             
                             $mailer = new \App\Mail\MailSender($details);
-                            Mail::to($referrer_data->email)->queue($mailer);
+                            Mail::to($referrer_data->email)->send($mailer);
                         }
                     }
                 }
@@ -467,55 +340,81 @@ class DepositController extends Controller {
             $user = User::find($is_valid_deposit->user_id);
 
             $details = [
-                'subject' => ($is_valid_deposit->reinvestment ? 'Your Reinvestment' : 'Your Deposit') .  ' Has Been Approved',
+                'subject' => 'Your Deposit Has Been Approved',
                 'amount' => $is_valid_deposit->amount,
+                'username' => $is_valid_deposit->user->name,
                 'transaction_hash' => $is_valid_deposit->transaction_hash,
-                'wallet' => $is_valid_deposit->wallet->currency,
-                'duration' => $is_valid_deposit->plan_duration,
-                'plan' => $is_valid_deposit->plan_name,
-                'reinvestment' => $is_valid_deposit->reinvestment,
+                'wallet' => $is_valid_deposit->user_wallet->currency,
+                'duration' => $is_valid_deposit->plan->duration,
+                'plan' => $is_valid_deposit->plan->name,
                 'date' => date("Y-m-d H:i:s"),
                 'view' => 'emails.user.depositapproved',
-                'email' => $user->email,
-                'username' => $user->name
+                'email' => $user->email
             ];
 
             $mailer = new \App\Mail\MailSender($details);
-            Mail::to($user->email)->queue($mailer);
-            // $main_wallet_id = $is_valid_deposit->user_wallet->main_wallet_id;
-            User::where('id', $is_valid_deposit->user_id)->increment('currently_invested', $is_valid_deposit->amount);
+            Mail::to($user->email)->send($mailer);
 
-            $request->session()->flash('success', ($is_valid_deposit->reinvestment ? 'Reinvestment' : 'Deposit') . " approved successfully");
-            return back();
+            // update wallet transaction count
+            $main_wallet_id = $is_valid_deposit->user_wallet->main_wallet_id;
+            // MainWallet::where([
+            //     'id' => $main_wallet_id
+            //     ])->increment('total_traded', $is_valid_deposit->amount);
 
+
+            // update current invested
+            if($is_valid_deposit->reinvestment) {
+                User::where('id', $is_valid_deposit->user_id)->increment('currently_invested', $is_valid_deposit->amount);
+                User::where('id', $is_valid_deposit->user_id)->decrement('deposit_balance', $is_valid_deposit->amount);
+            } else {
+                User::where('id', $is_valid_deposit->user_id)->increment('currently_invested', $is_valid_deposit->amount);   
+            }
+
+            return response()->json(
+                [
+                    'success' => ['message' => ['Deposit approved successfully']]
+                ], 201
+            );
         }
-        $request->session()->flash('success', "Something is not right");
-        return back();
+
+        return response()->json(
+            [
+                'errors' => ['message' => ['Something is not right']]
+            ], 201
+        );
+
+
     }
 
-    public function deny(Request $request) {
-        $page_title = env('SITE_NAME') . " Investment Website";
-        $mode = 'dark';
-        $user = Auth::user();
+    public function deny(Request $request, Deposit $deposit) {
+        // authenticate admin
 
-        $deposit =  new Deposit();
+        // approve deposit
         $deposit_id = $request->id;
         $is_valid_deposit = $deposit->where('id', $deposit_id)->first();
-        $deposits = Deposit::where('status', 'pending')->orderBy('id', 'DESC')->get();
 
         if(!$is_valid_deposit) {
-            $request->session()->flash('error', "Deposit request not found");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Deposit request not found']]
+                ], 404
+            );
         }
 
         if($is_valid_deposit->status == 'accepted') {
-            $request->session()->flash('error', "Deposit already approved");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Deposit already approved']]
+                ], 208
+            );
         }
 
         if($is_valid_deposit->status == 'denied') {
-            $request->session()->flash('error', "Deposit already denied");
-            return back();
+            return response()->json(
+                [
+                    'errors' => ['message' => ['Deposit already denied']]
+                ], 208
+            );
         }
 
         $deny_deposit = $deposit->where('id', $deposit_id)->update(
@@ -531,96 +430,56 @@ class DepositController extends Controller {
             $user = User::find($is_valid_deposit->user_id);
 
             $details = [
-                'subject' => ($is_valid_deposit->reinvestment ? 'Your Reinvestment' : 'Your Deposit') .  ' Has Been Denied',
+                'subject' => 'Your Deposit Has Been Denied',
+                'username' => $is_valid_deposit->user->name,
                 'amount' => $is_valid_deposit->amount,
                 'transaction_hash' => $is_valid_deposit->transaction_hash,
                 'wallet' => $is_valid_deposit->user_wallet->currency,
-                'duration' => $is_valid_deposit->plan_duration,
-                'plan' => $is_valid_deposit->plan_name,
+                'duration' => $is_valid_deposit->plan->duration,
+                'plan' => $is_valid_deposit->plan->name,
                 'date' => date("Y-m-d H:i:s"),
-                'reinvestment' => $is_valid_deposit->reinvestment,
                 'email' => $user->email,
-                'username' => $user->name,
                 'view' => 'emails.user.depositdenied'
             ];
 
             $mailer = new \App\Mail\MailSender($details);
-            Mail::to($user->email)->queue($mailer);
+            Mail::to($user->email)->send($mailer);
 
-           $request->session()->flash('success', "Deposit denied successfully");
-            return back();
+            return response()->json(
+                [
+                    'success' => ['message' => ['Deposit denied successfully']]
+                ], 201
+            );
         }
-        $request->session()->flash('error', "Something is not right");
-        return back();
+
+        return response()->json(
+            [
+                'errors' => ['message' => ['Something is not right']]
+            ], 201
+        );
     }
-    public function pauseDeposit(Request $request) {
-        $deposit =  new Deposit();
-        $deposit_id = $request->id;
-        $is_valid_deposit = $deposit->where('id', $deposit_id)->first();
 
-        if(!$is_valid_deposit) {
-            return response()->json([
-                'errors' => ['message' => ['Investment not found']]
-            ], 401);
-        }
+    public function delete(Request $request, Deposit $deposit) {
+        // authenticate admin
 
-        if($is_valid_deposit->running == '0') {
-            return response()->json([
-                'errors' => ['message' => ['Investment already paused']]
-            ], 401);
-        }
-
-        $pause_deposit = $deposit->where('id', $deposit_id)->update([
-            'running' => '0',
-        ]);
-        if($pause_deposit){
-            return response()->json([
-                'success' => ['message' => ['Investment paused successfully']]
-            ], 200);
-        }
-    }
-    public function playDeposit(Request $request) {
-        $deposit =  new Deposit();
+        // delete deposit
         $deposit_id = $request->id;
         $is_valid_deposit = $deposit->where('id', $deposit_id)->first();
 
         if(!$is_valid_deposit) {
             return response()->json(
-            [
-                    'errors' => ['message' => ['Investment not found']]
-                ], 401
+                [
+                    'errors' => ['message' => ['Deposit not found']]
+                ], 404
             );
-        }
-
-        if($is_valid_deposit->running == '1') {
-            return response()->json([
-                   'errors' => ['message' => ['Investment already running']]
-            ], 401);
-        }
-
-        $play_deposit = $deposit->where('id', $deposit_id)->update([
-            'running' => '1',
-        ]);
-        
-        if($play_deposit){
-           return response()->json([
-                'success' => ['message' => ['Investment has started running']]
-            ], 200);
-        }
-    }
-    public function delete(Request $request) {
-        $deposit =  new Deposit();
-        $deposit_id = $request->id;
-        $is_valid_deposit = $deposit->where('id', $deposit_id)->first();
-
-        if(!$is_valid_deposit) {
-            $request->session()->flash('error', "Deposit not found");
-            return back();
         } else {
-           $delete_deposit = $deposit->where('id', $deposit_id)->delete();
-           if($delete_deposit){
-                $request->session()->flash('success', "Deposit deleted successfully");
-               return back();
+            $delete_deposit = $deposit->where('id', $deposit_id)->delete();
+            if($delete_deposit){
+                return response()->json(
+                    [
+                        'success' => ['message' => ['Deposit Deleted']]
+                    ], 201
+                );
             }
         }
     }
