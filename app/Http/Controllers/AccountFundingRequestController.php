@@ -23,6 +23,9 @@ class AccountFundingRequestController extends Controller {
             User::where([
                 'id' => $user->id
             ])->increment('total_balance', $request->amount);
+            User::where([
+                'id' => $user->id
+            ])->increment('deposit_balance', $request->amount);
             return response()->json(
                 [
                 'success'=> ['message' => ["User Deposit balance has been funded with $$request->amount"]]
@@ -90,6 +93,9 @@ class AccountFundingRequestController extends Controller {
             User::where([
                 'id' => $user->id
             ])->decrement('total_balance', $request->amount);
+            User::where([
+                'id' => $user->id
+            ])->decrement('deposit_balance', $request->amount);
             return response()->json(
                 [
                 'success'=> ['message' => ["User Deposit balance has been debited with $$request->amount"]]
